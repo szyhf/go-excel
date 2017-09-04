@@ -3,7 +3,7 @@ package test
 import (
 	"testing"
 
-	excel "github.com/szyhf/go-excel-orm"
+	excel "github.com/szyhf/go-excel"
 )
 
 type Simple struct {
@@ -24,8 +24,7 @@ type SimpleWithTag struct {
 }
 
 func TestMarshal(t *testing.T) {
-	filePath := "./testdata/simple.xlsx"
-	sheetName := "simple"
+
 	conn := excel.NewConnecter()
 	conn.Open(filePath)
 	rd := conn.NewReader(sheetName)
