@@ -16,4 +16,4 @@ Expect to create a ORM-Like library to read or write relate-db-like excel easily
 用起来有点浪费
 于是写了这个简化库
 这个库的工作参考了[tealeg/xlsx](github.com/tealeg/xlsx)的部分实现和读取逻辑。
-感谢`tealeg`的努力
+感谢`tealeg`

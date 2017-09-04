@@ -107,7 +107,31 @@ func (this *Connect) init() error {
 	if this.worksheetFileMap == nil || len(this.worksheetFileMap) == 0 {
 		return ErrSharedStringsNotExist
 	}
+	var err error
+	// prepare workbook
+	err = this.readWorkbook()
+	if err != nil {
+		return errors.New("read workbook failed:" + err.Error())
+	}
 	return nil
 }
 
+func (this *Connect) readWorkbook() error {
+	// Find name of sheets
+	rc, err := this.workbookFile.Open()
+	if err != nil {
+		return err
+	}
+	defer rc.Close()
+
+	wb, err := readWorkbookXML(rc)
+	if err != nil {
+		return err
+	}
+	this.sheets = make([]string, 0, len(wb.Sheets.Sheet))
+	for _, sheet := range wb.Sheets.Sheet {
+		this.sheets = append(this.sheets, sheet.Name)
+	}
+
+	return nil
 }
