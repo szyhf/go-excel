@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<sst
+	xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" count="5" uniqueCount="5">
+	<si>
+		<t>ID</t>
+		<phoneticPr fontId="1" type="noConversion" />
+	</si>
+	<si>
+		<t>Name</t>
+		<phoneticPr fontId="1" type="noConversion" />
+	</si>
+	<si>
+		<t>Slice</t>
+		<phoneticPr fontId="1" type="noConversion" />
+	</si>
+	<si>
+		<t>Foo</t>
+		<phoneticPr fontId="1" type="noConversion" />
+	</si>
+	<si>
+		<t>Hello|World</t>
+		<phoneticPr fontId="1" type="noConversion" />
+	</si>
+</sst>
