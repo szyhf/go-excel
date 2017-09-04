@@ -66,7 +66,7 @@ func (this *Connect) Close() error {
 // Generate an new reader of a sheet
 func (this *Connect) NewReader(sheet string) (excel.Reader, error) {
 	if this.zipReader == nil {
-		return nil, ErrConnectNotOpened
+		return nil, excel.ErrConnectNotOpened
 	}
 
 	return nil, nil
@@ -99,13 +99,13 @@ func (this *Connect) init() error {
 		}
 	}
 	if this.workbookFile == nil {
-		return ErrWorkbookNotExist
+		return excel.ErrWorkbookNotExist
 	}
 	if this.sharedStringsFile == nil {
-		return ErrSharedStringsNotExist
+		return excel.ErrSharedStringsNotExist
 	}
 	if this.worksheetFileMap == nil || len(this.worksheetFileMap) == 0 {
-		return ErrSharedStringsNotExist
+		return excel.ErrSharedStringsNotExist
 	}
 	var err error
 	// prepare workbook
