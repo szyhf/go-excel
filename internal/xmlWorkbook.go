@@ -8,10 +8,10 @@ import (
 // Ref: tealeg/xlsx/xmlWorkbook.go
 // I just keep the part I want.
 
-func readWorkbookXML(rc io.ReadCloser) (*xlsxWorkbook, error) {
+func readWorkbookXML(rd io.Reader) (*xlsxWorkbook, error) {
 	var err error
 	workbook := new(xlsxWorkbook)
-	decoder := xml.NewDecoder(rc)
+	decoder := xml.NewDecoder(rd)
 	err = decoder.Decode(workbook)
 	if err != nil {
 		return nil, err
