@@ -2,8 +2,6 @@ package test
 
 import (
 	"testing"
-
-	excel "github.com/szyhf/go-excel"
 )
 
 type Simple struct {
@@ -15,8 +13,8 @@ type Simple struct {
 
 type SimpleWithTag struct {
 	Int    int    `excel:"int_field"`
-	IntAry []int  `excel:"int_ary_field" excelsplit:"|"`
-	String string `excel:"string_field"`
+	IntAry []int  `excel:"column(int_ary_field);split(|);default(0);"`
+	String string `excel:"index(2);"`
 	// Uint    uint    `excel:"uint_field"`
 
 	// Float64 float64 `excel:"float64_field"`
@@ -25,9 +23,9 @@ type SimpleWithTag struct {
 
 func TestMarshal(t *testing.T) {
 
-	conn := excel.NewConnecter()
-	conn.Open(filePath)
-	rd := conn.NewReader(sheetName)
-	var simple Simple
-	rd.Read(&simple)
+	// conn := excel.NewConnecter()
+	// conn.Open(filePath)
+	// rd := conn.NewReader(sheetName)
+	// var simple Simple
+	// rd.Read(&simple)
 }

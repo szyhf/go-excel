@@ -12,16 +12,21 @@ type Connecter interface {
 }
 
 type Reader interface {
-	// Read current row
+	// Read current row into a object
 	Read(v interface{}) error
-	// Read as rows[start:stop]
-	ReadBetween(start, stop int, container interface{}) error
 	// Read all rows
 	ReadAll(container interface{}) error
 	// Read next rows
 	Next() bool
 
+	// Read as rows[start:stop]
+	// ReadBetween(start, stop int, container interface{}) error
+
 	// GetBool(index int) bool
 	// GetString(index int) string
 
+}
+
+type Decoder interface {
+	Decode(i interface{})
 }

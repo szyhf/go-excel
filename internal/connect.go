@@ -8,28 +8,21 @@ import (
 	"github.com/szyhf/go-excel"
 )
 
-const (
-	// 所有的值汇总
-	SHARED_STRING = "xl/sharedStrings.xml"
-	// 找个各个sheet的名字的地方
-	WORK_BOOK = "xl/workbook.xml"
-	// 各个工作表的数据
-	WORK_SHEETS_PREFIX = "xl/worksheets/sheet"
-)
-
 type Connect struct {
 	FilePath string
 
 	// list of sorted sheet name
-	sheets []string
+	sheets        []string
+	sharedStrings []string
 
 	// xl/sharedStrings.xml
 	sharedStringsFile *zip.File
 	// xl/workbook.xml
 	workbookFile *zip.File
 	// "xl/worksheets/sheet*.xml" map[sheet*]*zip.File
-	worksheetFileMap map[string]*zip.File
-	zipReader        *zip.ReadCloser
+	worksheetIDFileMap   map[string]*zip.File
+	worksheetNameFileMap map[string]*zip.File
+	zipReader            *zip.ReadCloser
 }
 
 func NewConnect() excel.Connecter {
@@ -69,7 +62,8 @@ func (this *Connect) NewReader(sheet string) (excel.Reader, error) {
 		return nil, excel.ErrConnectNotOpened
 	}
 
-	return nil, nil
+	reader, err := newReader(this, sheet)
+	return reader, err
 }
 
 func (this *Connect) MustReader(sheet string) excel.Reader {
@@ -80,9 +74,21 @@ func (this *Connect) MustReader(sheet string) excel.Reader {
 	return rd
 }
 
+func (this *Connect) getSharedString(id int) string {
+	if this.sharedStrings == nil {
+		rc, err := this.sharedStringsFile.Open()
+		defer rc.Close()
+		if err != nil {
+			return ""
+		}
+		this.sharedStrings = readSharedStringsXML(rc)
+	}
+	return this.sharedStrings[id]
+}
+
 func (this *Connect) init() error {
 	// Find file of "workbook.xml", "sharedStrings.xml" and files in worksheets
-	this.worksheetFileMap = make(map[string]*zip.File)
+	this.worksheetIDFileMap = make(map[string]*zip.File)
 	for _, f := range this.zipReader.File {
 		switch f.Name {
 		case SHARED_STRING:
@@ -93,8 +99,9 @@ func (this *Connect) init() error {
 			if strings.HasPrefix(f.Name, WORK_SHEETS_PREFIX) {
 				// Trim left of prefix
 				// Trim right of ".xml" as len = 4
-				worksheetName := f.Name[len(WORK_SHEETS_PREFIX) : len(f.Name)-4]
-				this.worksheetFileMap[worksheetName] = f
+				worksheetIDName := f.Name[len(WORK_SHEETS_PREFIX) : len(f.Name)-4]
+				// println("WorksheetName:", worksheetName)
+				this.worksheetIDFileMap[worksheetIDName] = f
 			}
 		}
 	}
@@ -104,8 +111,8 @@ func (this *Connect) init() error {
 	if this.sharedStringsFile == nil {
 		return excel.ErrSharedStringsNotExist
 	}
-	if this.worksheetFileMap == nil || len(this.worksheetFileMap) == 0 {
-		return excel.ErrSharedStringsNotExist
+	if this.worksheetIDFileMap == nil || len(this.worksheetIDFileMap) == 0 {
+		return excel.ErrWorkbookNotExist
 	}
 	var err error
 	// prepare workbook
@@ -129,8 +136,12 @@ func (this *Connect) readWorkbook() error {
 		return err
 	}
 	this.sheets = make([]string, 0, len(wb.Sheets.Sheet))
+	this.worksheetNameFileMap = make(map[string]*zip.File)
 	for _, sheet := range wb.Sheets.Sheet {
 		this.sheets = append(this.sheets, sheet.Name)
+		// record the sheet name to *zip.File
+		file := this.worksheetIDFileMap[sheet.SheetID]
+		this.worksheetNameFileMap[sheet.Name] = file
 	}
 
 	return nil

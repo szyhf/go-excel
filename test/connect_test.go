@@ -26,5 +26,11 @@ func TestNewReader(t *testing.T) {
 	if err != nil {
 		t.Error(err)
 	}
-
+	rd, err := conn.NewReader(sheetName)
+	if err != nil {
+		t.Error(err)
+	}
+	for rd.Next() {
+		rd.Read(nil)
+	}
 }

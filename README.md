@@ -33,7 +33,7 @@ Expect to create a ORM-Like library to read or write relate-db-like excel easily
 ## RoadMap | 开发计划
 
 + Read xlsx file and got the expect xml. √
-+ Prepare the shared string xml.
++ Prepare the shared string xml. √
 + Get the correct sheetX.xml. √
 + Read a row of a sheet.
 + Read a cell of a row, fix the empty cell.
