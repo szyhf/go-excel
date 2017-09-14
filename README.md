@@ -35,9 +35,9 @@ Expect to create a ORM-Like library to read or write relate-db-like excel easily
 + Read xlsx file and got the expect xml. √
 + Prepare the shared string xml. √
 + Get the correct sheetX.xml. √
-+ Read a row of a sheet.
-+ Read a cell of a row, fix the empty cell.
-+ Fill string cell with value of shared string xml.
++ Read a row of a sheet. √
++ Read a cell of a row, fix the empty cell. √
++ Fill string cell with value of shared string xml. √
 + Read a row to a struct by column index.
 + Can set the column name row, default is the first row.
 + Read a row to a struct by column name.

@@ -27,6 +27,7 @@ func TestNewReader(t *testing.T) {
 		t.Error(err)
 	}
 	rd, err := conn.NewReader(sheetName)
+	defer rd.Close()
 	if err != nil {
 		t.Error(err)
 	}

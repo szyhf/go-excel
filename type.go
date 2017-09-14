@@ -18,6 +18,7 @@ type Reader interface {
 	ReadAll(container interface{}) error
 	// Read next rows
 	Next() bool
+	Close() error
 
 	// Read as rows[start:stop]
 	// ReadBetween(start, stop int, container interface{}) error

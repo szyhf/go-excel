@@ -54,6 +54,19 @@ func (this *Read) Read(v interface{}) error {
 	return nil
 }
 
+func (this *Read) Close() error {
+	if this.readCloser != nil {
+		err := this.readCloser.Close()
+		if err != nil {
+			return err
+		}
+	}
+	if this.decoder != nil {
+		this.decoder = nil
+	}
+	return nil
+}
+
 // Read all rows
 func (this *Read) ReadAll(container interface{}) error {
 	return nil
