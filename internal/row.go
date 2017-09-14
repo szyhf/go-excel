@@ -40,8 +40,13 @@ func newRow(rd *Read) (*Row, error) {
 	return r, nil
 }
 
-func newRowAsMap(rd *Read) (*Row, error) {
-	r := &Row{
+func newRowAsMap(rd *Read) (r *Row, err error) {
+	defer func() {
+		if rc := recover(); rc != nil {
+			err = fmt.Errorf("%s", rc)
+		}
+	}()
+	r = &Row{
 		srcMap: make(map[int]string),
 	}
 	tempCell := &xlsxC{}

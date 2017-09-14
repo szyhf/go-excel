@@ -61,8 +61,16 @@ func (this *Connect) NewReader(sheet string) (excel.Reader, error) {
 	if this.zipReader == nil {
 		return nil, excel.ErrConnectNotOpened
 	}
-
-	reader, err := newReader(this, sheet)
+	workSheetFile, ok := this.worksheetNameFileMap[sheet]
+	if !ok {
+		return nil, excel.ErrWorksheetsNotExist
+	}
+	rc, err := workSheetFile.Open()
+	if err != nil {
+		return nil, err
+	}
+	reader, err := newReader(this, rc)
+	rc.Close()
 	return reader, err
 }
 
@@ -75,14 +83,6 @@ func (this *Connect) MustReader(sheet string) excel.Reader {
 }
 
 func (this *Connect) getSharedString(id int) string {
-	if this.sharedStrings == nil {
-		rc, err := this.sharedStringsFile.Open()
-		defer rc.Close()
-		if err != nil {
-			return ""
-		}
-		this.sharedStrings = readSharedStringsXML(rc)
-	}
 	return this.sharedStrings[id]
 }
 
@@ -120,6 +120,13 @@ func (this *Connect) init() error {
 	if err != nil {
 		return errors.New("read workbook failed:" + err.Error())
 	}
+	// prepare sharedstring
+	rc, err := this.sharedStringsFile.Open()
+	if err != nil {
+		return err
+	}
+	this.sharedStrings = readSharedStringsXML(rc)
+	rc.Close()
 	return nil
 }
 

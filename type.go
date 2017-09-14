@@ -18,14 +18,14 @@ type Reader interface {
 	ReadAll(container interface{}) error
 	// Read next rows
 	Next() bool
+	// Close the reader
 	Close() error
 
 	// Read as rows[start:stop]
 	// ReadBetween(start, stop int, container interface{}) error
 
-	// GetBool(index int) bool
-	// GetString(index int) string
-
+	GetBool(index int) bool
+	GetString(index int) string
 }
 
 type Decoder interface {
