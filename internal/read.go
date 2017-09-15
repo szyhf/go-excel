@@ -1,22 +1,27 @@
 package internal
 
 import (
+	"encoding"
 	"encoding/xml"
+	"errors"
 	"fmt"
 	"io"
 	"reflect"
+	"strings"
 
-	"github.com/szyhf/go-convert"
+	convert "github.com/szyhf/go-convert"
+
 	"github.com/szyhf/go-excel"
+	"github.com/szyhf/go-excel/internal/twenty_six"
 )
+
+var typeOfTextUnmarshaler = reflect.TypeOf(encoding.TextUnmarshaler(nil))
 
 type Read struct {
 	connecter *Connect
 	config    *Config
 	decoder   *xml.Decoder
-
-	// The index of the Func Next()
-	nextIndex int
+	title     *Row
 
 	// map[$fieldName]$fileIndex
 	fields map[string]int
@@ -37,12 +42,6 @@ func (this *Read) Next() bool {
 
 // Read current row into an object by its pointer
 func (this *Read) Read(i interface{}) error {
-
-	// row, err := newRowAsMap(this)
-	// if err != nil {
-	// 	return err
-	// }
-
 	t := reflect.TypeOf(i)
 	switch t.Kind() {
 	case reflect.Slice, reflect.Chan, reflect.Array, reflect.Map, reflect.Ptr:
@@ -59,11 +58,7 @@ func (this *Read) Read(i interface{}) error {
 	}
 	v = v.Elem()
 
-	newRowBySchame(this, &Row{
-		// srcMap: map[int]string{0: "ID", 1: "Slice", 2: "Name"},
-		dstMap: map[string]int{"ID": 0, "Slice": 1, "Name": 2},
-	}, s, v)
-	return nil
+	return this.readToValue(s, v)
 }
 
 func (this *Read) Close() error {
@@ -78,13 +73,97 @@ func (this *Read) ReadAll(container interface{}) error {
 	return nil
 }
 
-func newReader(cn *Connect, workSheetFileReader io.Reader) (rdd excel.Reader, erro error) {
-	// 先不考虑标题行
-	return newBaseReaderByWorkSheetFile(cn, workSheetFileReader)
+func (this *Read) readToValue(s *Schema, v reflect.Value) (err error) {
+	defer func() {
+		if rc := recover(); rc != nil {
+			err = fmt.Errorf("%s", rc)
+		}
+	}()
+
+	tempCell := &xlsxC{}
+	fieldsMap := this.title.MapToFields(s)
+	for t, err := this.decoder.Token(); err == nil; t, err = this.decoder.Token() {
+		switch token := t.(type) {
+		case xml.StartElement:
+			if token.Name.Local == "c" {
+				tempCell.R = ""
+				tempCell.T = ""
+				for _, a := range token.Attr {
+					switch a.Name.Local {
+					case "r":
+						tempCell.R = a.Value
+					case "t":
+						tempCell.T = a.Value
+					}
+				}
+			}
+		case xml.EndElement:
+			if token.Name.Local == ROW {
+				// 结束当前行
+				return nil
+			}
+		case xml.CharData:
+			trimedColumnName := strings.TrimRight(tempCell.R, ALL_NUMBER)
+			columnIndex := twentySix.ToDecimalism(trimedColumnName)
+			var valStr string
+			if tempCell.T == S {
+				// get string from shared
+				valStr = this.connecter.getSharedString(convert.MustInt(string(token)))
+			} else {
+				valStr = string(token)
+			}
+
+			fields := fieldsMap[columnIndex]
+			for _, fieldCnf := range fields {
+				fieldValue := v.Field(fieldCnf.FieldIndex)
+				switch fieldValue.Kind() {
+				case reflect.Slice, reflect.Array:
+					if len(fieldCnf.Split) > 0 {
+						// use split
+						elems := strings.Split(valStr, fieldCnf.Split)
+						fieldValue.Set(reflect.MakeSlice(fieldValue.Type(), 0, len(elems)))
+						err = ScanSlice(elems, fieldValue.Addr())
+					}
+				case reflect.Ptr:
+					newValue := fieldValue
+					if newValue.IsNil() {
+						for newValue.Kind() == reflect.Ptr {
+							newValue.Set(reflect.New(newValue.Type().Elem()))
+							newValue = newValue.Elem()
+						}
+					}
+					err = Scan(valStr, newValue.Addr().Interface())
+				default:
+					err = Scan(valStr, fieldValue.Addr().Interface())
+				}
+				if err != nil {
+					println(fieldCnf.ColumnName)
+					return err
+				}
+			}
+		}
+	}
+
+	return errors.New("No row")
+}
+
+func newReader(cn *Connect, workSheetFileReader io.Reader) (excel.Reader, error) {
+	rd, err := newBaseReaderByWorkSheetFile(cn, workSheetFileReader)
+	if err != nil {
+		return nil, err
+	}
+	// consider title row
+	for i := 0; i < rd.config.TitleRow; i++ {
+		if !rd.Next() {
+			return rd, nil
+		}
+	}
+	rd.title, err = newRowAsMap(rd)
+	return rd, err
 }
 
 // Make a base reader to sheet
-func newBaseReaderByWorkSheetFile(cn *Connect, rc io.Reader) (excel.Reader, error) {
+func newBaseReaderByWorkSheetFile(cn *Connect, rc io.Reader) (*Read, error) {
 	decoder := xml.NewDecoder(rc)
 	// step into root [xml.StartElement] token
 	func(decoder *xml.Decoder) {
@@ -123,26 +202,4 @@ func newBaseReaderByWorkSheetFile(cn *Connect, rc io.Reader) (excel.Reader, erro
 	}
 
 	return rd, nil
-}
-
-// 根据标题行推算有多少列
-// 读取tag的配置，生成各个列的读取配置
-func readRowStart(token xml.StartElement, column *Field) {
-	if len(token.Attr) <= 0 {
-		return
-	}
-
-}
-
-// 确定当前row token在第几行
-func getRowIndexOfToken(rowToken xml.StartElement) int {
-	if len(rowToken.Attr) <= 0 {
-		panic("unexpect sheet.xml structure.")
-	}
-	for _, attr := range rowToken.Attr {
-		if attr.Name.Local == "r" {
-			return convert.MustInt(attr.Value)
-		}
-	}
-	panic("unexpect sheet.xml structure.")
 }

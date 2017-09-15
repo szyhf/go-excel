@@ -48,8 +48,10 @@ func Scan(s string, ptr interface{}) error {
 		*p, err = convert.ToFloat64(s)
 	case *bool:
 		*p, err = convert.ToBool(s)
-	case encoding.TextUnmarshaler:
-		err = p.UnmarshalText([]byte(s))
+	case encoding.BinaryUnmarshaler:
+		if err = p.UnmarshalBinary([]byte(s)); err != nil {
+			err = fmt.Errorf("can't unmarshar by encoding.BinaryUnmarshaler: %s", err)
+		}
 	default:
 		err = fmt.Errorf(
 			"can't unmarshal %T (consider implementing encoding.TextUnmarshaler)", ptr)
@@ -57,21 +59,20 @@ func Scan(s string, ptr interface{}) error {
 	return err
 }
 
-func ScanSlice(data []string, slice interface{}) error {
-	v := reflect.ValueOf(slice)
-	if !v.IsValid() {
+func ScanSlice(data []string, sliceValue reflect.Value) error {
+	if !sliceValue.IsValid() {
 		return fmt.Errorf("ScanSlice(nil)")
 	}
-	if v.Kind() != reflect.Ptr {
-		return fmt.Errorf("ScanSlice(non-pointer %T)", slice)
+	if sliceValue.Kind() != reflect.Ptr {
+		return fmt.Errorf("ScanSlice(non-pointer %s)", sliceValue.Kind())
 	}
-	v = v.Elem()
-	if v.Kind() != reflect.Slice {
-		return fmt.Errorf("ScanSlice(non-slice %T)", slice)
+	sliceValue = sliceValue.Elem()
+	if sliceValue.Kind() != reflect.Slice {
+		return fmt.Errorf("ScanSlice(non-slice %s)", sliceValue.Kind())
 	}
 
 	for i, s := range data {
-		elem := SliceNextElem(v)
+		elem := SliceNextElem(sliceValue)
 		if err := Scan(s, elem.Addr().Interface()); err != nil {
 			return fmt.Errorf("ScanSlice(index=%d value=%q) failed: %s", i, s, err)
 		}
