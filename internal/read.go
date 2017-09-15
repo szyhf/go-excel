@@ -118,7 +118,7 @@ func (this *Read) readToValue(s *Schema, v reflect.Value) (err error) {
 				fieldValue := v.Field(fieldCnf.FieldIndex)
 				switch fieldValue.Kind() {
 				case reflect.Slice, reflect.Array:
-					if len(fieldCnf.Split) > 0 {
+					if len(fieldCnf.Split) != 0 {
 						// use split
 						elems := strings.Split(valStr, fieldCnf.Split)
 						fieldValue.Set(reflect.MakeSlice(fieldValue.Type(), 0, len(elems)))

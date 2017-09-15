@@ -3,8 +3,6 @@ package internal
 import (
 	"reflect"
 	"strings"
-
-	"github.com/szyhf/go-convert"
 )
 
 const tagIdentify = "xlsx"
@@ -13,12 +11,11 @@ const tagSplit = ";"
 const columnTag = "column"
 const splitTag = "split"
 const defaultTag = "default"
-const indexTag = "index"
 const ignoreTag = "-"
 
 type Field struct {
-	FieldIndex   int
-	ColumnIndex  int
+	FieldIndex int
+	// use ptr in order to know if configed.
 	ColumnName   string
 	DefaultValue string
 	Split        string
@@ -40,6 +37,9 @@ func newSchema(t reflect.Type) *Schema {
 			if value != ignoreTag {
 				fieldCnf := praseTagValue(value)
 				fieldCnf.FieldIndex = i
+				if fieldCnf.ColumnName == "" {
+					fieldCnf.ColumnName = field.Name
+				}
 				s.Fields = append(s.Fields, fieldCnf)
 			}
 		}
@@ -82,7 +82,5 @@ func fillField(c *Field, k, v string) {
 		c.DefaultValue = v
 	case splitTag:
 		c.Split = v
-	case indexTag:
-		c.ColumnIndex = convert.MustInt(v)
 	}
 }

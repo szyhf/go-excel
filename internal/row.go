@@ -129,15 +129,14 @@ func (this *Row) MapToFields(s *Schema) (rowToFiled map[int][]*Field) {
 	m := make(map[int][]*Field)
 	for _, field := range s.Fields {
 		var cloIndex int
-		if field.ColumnName == "" {
-			// Use ColumnIndex as default
-			cloIndex = field.ColumnIndex
+		// Use ColumnName to find index
+		if i, ok := this.dstMap[field.ColumnName]; ok {
+			cloIndex = i
 		} else {
-			// Use ColumnName to find index
-			if i, ok := this.dstMap[field.ColumnName]; ok {
-				cloIndex = i
-			}
+			// Use 26-number-system to find
+			cloIndex = twentySix.ToDecimalism(field.ColumnName)
 		}
+
 		if fAry, ok := m[cloIndex]; !ok {
 			m[cloIndex] = []*Field{field}
 		} else {

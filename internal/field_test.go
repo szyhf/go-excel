@@ -2,6 +2,7 @@ package internal
 
 import (
 	"fmt"
+	"reflect"
 	"testing"
 
 	convert "github.com/szyhf/go-convert"
@@ -18,7 +19,7 @@ type SimpleWithTag struct {
 }
 
 func TestPraseTag(t *testing.T) {
-	s := newSchema(&SimpleWithTag{})
+	s := newSchema(reflect.TypeOf(&SimpleWithTag{}))
 	fmt.Printf("%s", convert.MustJsonPrettyString(s))
 }
 
