@@ -24,8 +24,8 @@ type Reader interface {
 	// Read as rows[start:stop]
 	// ReadBetween(start, stop int, container interface{}) error
 
-	GetBool(index int) bool
-	GetString(index int) string
+	// GetBool(index int) bool
+	// GetString(index int) string
 }
 
 type Decoder interface {

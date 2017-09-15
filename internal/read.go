@@ -37,30 +37,32 @@ func (this *Read) Next() bool {
 
 // Read current row into an object by its pointer
 func (this *Read) Read(i interface{}) error {
+
+	// row, err := newRowAsMap(this)
+	// if err != nil {
+	// 	return err
+	// }
+
 	t := reflect.TypeOf(i)
-	if t.Kind() != reflect.Ptr {
+	switch t.Kind() {
+	case reflect.Slice, reflect.Chan, reflect.Array, reflect.Map, reflect.Ptr:
+		t = t.Elem()
+	default:
 		return fmt.Errorf("%T should be pointer.", i)
 	}
-	t = t.Elem()
+
+	s := newSchema(t)
+
 	v := reflect.ValueOf(i)
 	if v.IsNil() {
 		v.Set(reflect.New(t))
 	}
 	v = v.Elem()
 
-	row, err := newRowAsMap(this)
-	if err != nil {
-		return err
-	}
-	for index := 0; index < t.NumField(); index++ {
-		// fieldType := t.Field(index)
-		fieldValue := v.Field(index)
-		if fieldValue.Kind() == reflect.Ptr {
-			fieldValue = fieldValue.Elem()
-		}
-		varStr := row.ValueAtColumn(index)
-		Scan(varStr, fieldValue.Addr().Interface())
-	}
+	newRowBySchame(this, &Row{
+		// srcMap: map[int]string{0: "ID", 1: "Slice", 2: "Name"},
+		dstMap: map[string]int{"ID": 0, "Slice": 1, "Name": 2},
+	}, s, v)
 	return nil
 }
 
@@ -125,7 +127,7 @@ func newBaseReaderByWorkSheetFile(cn *Connect, rc io.Reader) (excel.Reader, erro
 
 // 根据标题行推算有多少列
 // 读取tag的配置，生成各个列的读取配置
-func readRowStart(token xml.StartElement, column *Column) {
+func readRowStart(token xml.StartElement, column *Field) {
 	if len(token.Attr) <= 0 {
 		return
 	}
