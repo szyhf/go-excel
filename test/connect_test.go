@@ -1,10 +1,9 @@
 package test
 
 import (
+	"encoding/json"
 	"fmt"
 	"testing"
-
-	"github.com/json-iterator/go"
 
 	convert "github.com/szyhf/go-convert"
 	"github.com/szyhf/go-excel/internal"
@@ -36,7 +35,7 @@ type Temp struct {
 }
 
 func (this *Temp) UnmarshalBinary(d []byte) error {
-	return jsoniter.Unmarshal(d, this)
+	return json.Unmarshal(d, this)
 }
 
 func TestNewReader(t *testing.T) {

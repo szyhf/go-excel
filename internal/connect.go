@@ -6,6 +6,7 @@ import (
 	"strings"
 
 	"github.com/szyhf/go-excel"
+	"github.com/szyhf/go-excel/internal/utils"
 )
 
 type Connect struct {
@@ -57,10 +58,14 @@ func (this *Connect) Close() error {
 }
 
 // Generate an new reader of a sheet
-func (this *Connect) NewReader(sheet string) (excel.Reader, error) {
+// sheetNamer: if sheetNamer is string, will use sheet as sheet name.
+//        if sheetNamer is a object implements `GetXLSXSheetName()string`, the return value will be used.
+//        otherwise, will use sheetNamer as struct and reflect for it's name.
+func (this *Connect) NewReader(sheetNamer interface{}) (excel.Reader, error) {
 	if this.zipReader == nil {
 		return nil, excel.ErrConnectNotOpened
 	}
+	sheet := utils.ParseSheetName(sheetNamer)
 	workSheetFile, ok := this.worksheetNameFileMap[sheet]
 	if !ok {
 		return nil, excel.ErrWorksheetsNotExist
@@ -74,8 +79,8 @@ func (this *Connect) NewReader(sheet string) (excel.Reader, error) {
 	return reader, err
 }
 
-func (this *Connect) MustReader(sheet string) excel.Reader {
-	rd, err := this.NewReader(sheet)
+func (this *Connect) MustReader(sheetNamer interface{}) excel.Reader {
+	rd, err := this.NewReader(sheetNamer)
 	if err != nil {
 		panic(err)
 	}

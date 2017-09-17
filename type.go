@@ -6,26 +6,26 @@ type Connecter interface {
 	// Close file reader
 	Close() error
 	// Generate an new reader of a sheet
-	NewReader(sheet string) (Reader, error)
+	NewReader(sheetNamer interface{}) (Reader, error)
 	// Panic if can not generate a new reader
-	MustReader(sheet string) Reader
+	MustReader(sheetNamer interface{}) Reader
 }
 
 type Reader interface {
 	// Read current row into a object
 	Read(v interface{}) error
 	// Read all rows
+	// container: container should be ptr to slice or array.
 	ReadAll(container interface{}) error
 	// Read next rows
 	Next() bool
 	// Close the reader
 	Close() error
 
-	// Read as rows[start:stop]
-	// ReadBetween(start, stop int, container interface{}) error
-
-	// GetBool(index int) bool
-	// GetString(index int) string
+	// Use row n as title, every row before title-row will be ignore, default is 0.
+	// TitileRow(rowIndex int) Reader
+	// // Skip n row after title, default is 0 (not skip).
+	// Skip(skip int) Reader
 }
 
 type Decoder interface {
