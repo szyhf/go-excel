@@ -57,14 +57,15 @@ func TestRead(t *testing.T) {
 	// file
 	conn := internal.NewConnect()
 	err := conn.Open(filePath)
+	defer conn.Close()
 	if err != nil {
 		t.Error(err)
 	}
 	rd, err := conn.NewReader(sheetName)
+	defer rd.Close()
 	if err != nil {
 		t.Error(err)
 	}
-	defer conn.Close()
 	for rd.Next() {
 		var s Simple
 		err := rd.Read(&s)

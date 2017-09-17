@@ -4,6 +4,92 @@ Expect to create a ORM-Like library to read or write relate-db-like excel easily
 
 ---
 
+
+
+## RoadMap | 开发计划
+
++ Read xlsx file and got the expect xml. √
++ Prepare the shared string xml. √
++ Get the correct sheetX.xml. √
++ Read a row of a sheet. √
++ Read a cell of a row, fix the empty cell. √
++ Fill string cell with value of shared string xml. √
++ Can set the column name row, default is the first row. √
++ Read a row to a struct by column name. √
+
+## Example | 用例
+
+Assume you have a xlsx file has a sheet named "Simple" and looks like below:
+
+|ID|NameOf|age|Slice|
+|-|-|-|-|-|
+|1|Andy|15|1-2-3|
+|2|Leo||2|
+|||||
+|9|Ben|14|3|
+|10|Ming|10|9-2-3|
+
+---
+
+See the `simple.xlsx` in `testdata`
+
+---
+
+So define a struct like this:
+
+```go
+type Simple struct {
+	ID int
+	Name string `xlsx:column(NameOf)`
+	Age int `xlsx:default(0)`
+	Slice []int `xlsx:"split(-)"`
+}
+```
+
+Then read the xlsx file will like this:
+
+```go
+conn := internal.NewConnect()
+err := conn.Open("path/to/file.xlsx")
+defer conn.Close()
+if err != nil {
+	panic(err)
+}
+
+rd, err := conn.NewReader("Simple")
+if err != nil {
+	panic(err)
+}
+
+for rd.Next() {
+	var s Simple
+	err := rd.Read(&s)
+	if err != nil {
+		panic(err)
+	} else {
+		fmt.Printf("%+v\n", s)
+	}
+}
+```
+
+Or just read to an slice:
+
+```go
+rd, err := conn.NewReader("Simple")
+if err != nil {
+	panic(err)
+}
+var slc []Simple
+err = rd.ReadAll(&slc)
+if err != nil {
+	panic(err)
+}
+```
+
+For more usage to read the `test` directory.
+
+## Thinking | 随想
+
 在复杂的系统中（例如游戏）
 
 有时候为了便于非专业人员设置一些配置
@@ -29,17 +115,3 @@ Expect to create a ORM-Like library to read or write relate-db-like excel easily
 这个库的工作参考了[tealeg/xlsx](github.com/tealeg/xlsx)的部分实现和读取逻辑。
 
 感谢[tealeg](github.com/tealeg)
-
-## RoadMap | 开发计划
-
-+ Read xlsx file and got the expect xml. √
-+ Prepare the shared string xml. √
-+ Get the correct sheetX.xml. √
-+ Read a row of a sheet. √
-+ Read a cell of a row, fix the empty cell. √
-+ Fill string cell with value of shared string xml. √
-+ Read a row to a struct by column index.
-+ Can set the column name row, default is the first row.
-+ Read a row to a struct by column name.
-+ To be continued...
-
