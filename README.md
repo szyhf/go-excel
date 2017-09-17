@@ -22,7 +22,7 @@ Expect to create a ORM-Like library to read or write relate-db-like excel easily
 Assume you have a xlsx file has a sheet named "Simple" and looks like below:
 
 |ID|NameOf|age|Slice|
-|-|-|-|-|-|
+|-|-|-|-|
 |1|Andy|15|1-2-3|
 |2|Leo||2|
 |||||
