@@ -50,7 +50,7 @@ func (this*Temp)UnmarshalBinary(d []data)error{
 Then read the xlsx file will like this:
 
 ```go
-conn := internal.NewConnect()
+conn := excel.NewConnect()
 err := conn.Open("path/to/file.xlsx")
 defer conn.Close()
 if err != nil {
