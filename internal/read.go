@@ -19,12 +19,8 @@ var typeOfTextUnmarshaler = reflect.TypeOf(encoding.TextUnmarshaler(nil))
 
 type Read struct {
 	connecter *Connect
-	config    *Config
 	decoder   *xml.Decoder
 	title     *Row
-
-	// map[$fieldName]$fileIndex
-	fields map[string]int
 }
 
 func (this *Read) Next() bool {
@@ -147,18 +143,26 @@ func (this *Read) readToValue(s *Schema, v reflect.Value) (err error) {
 	return errors.New("No row")
 }
 
-func newReader(cn *Connect, workSheetFileReader io.Reader) (excel.Reader, error) {
+func newReader(cn *Connect, workSheetFileReader io.Reader, titleRowIndex, skip int) (excel.Reader, error) {
 	rd, err := newBaseReaderByWorkSheetFile(cn, workSheetFileReader)
 	if err != nil {
 		return nil, err
 	}
 	// consider title row
-	for i := 0; i < rd.config.TitleRow; i++ {
+	var i = 0
+	for ; i < titleRowIndex; i++ {
 		if !rd.Next() {
 			return rd, nil
 		}
 	}
 	rd.title, err = newRowAsMap(rd)
+
+	// consider skip
+	for i = 0; i < skip; i++ {
+		if !rd.Next() {
+			return rd, nil
+		}
+	}
 	return rd, err
 }
 
@@ -196,9 +200,7 @@ func newBaseReaderByWorkSheetFile(cn *Connect, rc io.Reader) (*Read, error) {
 
 	rd := &Read{
 		connecter: cn,
-		// TODO
-		config:  &Config{},
-		decoder: decoder,
+		decoder:   decoder,
 	}
 
 	return rd, nil

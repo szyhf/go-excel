@@ -21,13 +21,4 @@ type Reader interface {
 	Next() bool
 	// Close the reader
 	Close() error
-
-	// Use row n as title, every row before title-row will be ignore, default is 0.
-	// TitileRow(rowIndex int) Reader
-	// // Skip n row after title, default is 0 (not skip).
-	// Skip(skip int) Reader
-}
-
-type Decoder interface {
-	Decode(i interface{})
 }
