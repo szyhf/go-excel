@@ -21,13 +21,13 @@ Expect to create a ORM-Like library to read or write relate-db-like excel easily
 
 Assume you have a xlsx file has a sheet named "Simple" and looks like below:
 
-|ID|NameOf|age|Slice|
-|-|-|-|-|
-|1|Andy|15|1-2-3|
-|2|Leo||2|
-|||||
-|9|Ben|14|3|
-|10|Ming|10|9-2-3|
+|ID|NameOf|age|Slice|Temp|
+|-|-|-|-|-|
+|1|Andy|15|1-2-3|{"Foo":"Bar"}|
+|2|Leo||2||
+||||||
+|9|Ben|14|3||
+|10|Ming|10|9-2-3||
 
 ---
 
@@ -39,11 +39,22 @@ So define a struct like this:
 
 ```go
 type Simple struct {
-	ID int
-	Name string `xlsx:column(NameOf)`
-	Age int `xlsx:default(0)`
-	Slice []int `xlsx:"split(-)"`
+	ID    int    // No tag if not needed.
+	Name  string `xlsx:column(NameOf)`
+	Age   int    `xlsx:default(0)`
+	Slice []int  `xlsx:"split(-)"`
+	Temp  Temp   // Will auto use the string in cell to Unmarshal to `Temp`
 }
+
+type Temp struct{
+	Foo string
+	Bar int
+}
+// Implement the `encoding.BinaryMarshaler`
+func (this*Temp)UnmarshalBinary(d []data)error{
+	return json.Unmarshal(d)
+}
+
 ```
 
 Then read the xlsx file will like this:
@@ -87,6 +98,20 @@ if err != nil {
 ```
 
 For more usage to read the `test` directory.
+
+## Tag | 标签使用
+
+### column
+
+Map to field name in title row, by default will use the field name.
+
+### default
+
+Set default value when no value is filled in excel cell, by default is 0 or "".
+
+### split
+
+Split a string and convert them to a slice, it won't work if not set.
 
 ## Thinking | 随想
 
