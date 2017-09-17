@@ -87,7 +87,7 @@ if err != nil {
 }
 ```
 
-Use config for more optione:
+Use config for more option:
 
 ```go
 config := &excel.Config{
