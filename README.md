@@ -11,13 +11,17 @@ go get github.com/szyhf/go-excel
 
 Assume you have a xlsx file has a sheet named "Simple" and looks like below:
 
-|ID|NameOf|age|Slice|Temp|
+|ID|NameOf|Age|Slice|Temp|
 |-|-|-|-|-|
 |1|Andy|15|1-2-3|{"Foo":"Bar"}|
 |2|Leo||2||
 ||||||
 |9|Ben|14|3||
 |10|Ming|10|9-2-3||
+
++ The 3rd row of the table has no value so reader will auto skip it.
++ The `Age` of Leo is empty so that you can use `default` tag to fill with default value.
++ The `Temp` of Andy is a json string so that use `encoding.BinaryUnmarshaler` can auto unmarshal it.
 
 >> See the `simple.xlsx` in `testdata`
 
