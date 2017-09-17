@@ -1,21 +1,11 @@
 # Intro | 简介
 
-Expect to create a ORM-Like library to read or write relate-db-like excel easily.
+Expect to create a reader library to read relate-db-like excel easily.
+Just like read a config.
 
----
-
-
-
-## RoadMap | 开发计划
-
-+ Read xlsx file and got the expect xml. √
-+ Prepare the shared string xml. √
-+ Get the correct sheetX.xml. √
-+ Read a row of a sheet. √
-+ Read a cell of a row, fix the empty cell. √
-+ Fill string cell with value of shared string xml. √
-+ Can set the column name row, default is the first row. √
-+ Read a row to a struct by column name. √
+```shell
+go get github.com/szyhf/go-excel
+```
 
 ## Example | 用例
 
@@ -29,11 +19,7 @@ Assume you have a xlsx file has a sheet named "Simple" and looks like below:
 |9|Ben|14|3||
 |10|Ming|10|9-2-3||
 
----
-
-See the `simple.xlsx` in `testdata`
-
----
+>> See the `simple.xlsx` in `testdata`
 
 So define a struct like this:
 
@@ -131,6 +117,18 @@ Set default value when no value is filled in excel cell, by default is 0 or "".
 ### split
 
 Split a string and convert them to a slice, it won't work if not set.
+
+
+## RoadMap | 开发计划
+
++ Read xlsx file and got the expect xml. √
++ Prepare the shared string xml. √
++ Get the correct sheetX.xml. √
++ Read a row of a sheet. √
++ Read a cell of a row, fix the empty cell. √
++ Fill string cell with value of shared string xml. √
++ Can set the column name row, default is the first row. √
++ Read a row to a struct by column name. √
 
 ## Thinking | 随想
 
