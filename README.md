@@ -97,6 +97,25 @@ if err != nil {
 }
 ```
 
+Use config for more optione:
+
+```go
+config := &excel.Config{
+	// Sheet name as string or sheet model as object.
+	Sheet: "Simple"
+	// Use the index row as title, every row before title-row will be ignore, default is 0.
+	TitleRowIndex: 0
+	// Skip n row after title, default is 0 (not skip).
+	Skip: 1
+}
+rd, err := conn.NewReaderByConfig(config)
+if err != nil {
+	panic(err)
+}
+// skip the usage.
+rd.Next()
+```
+
 For more usage to read the `test` directory.
 
 ## Tag | 标签使用
