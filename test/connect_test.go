@@ -3,9 +3,9 @@ package test
 import (
 	"encoding/json"
 	"fmt"
+	"liangfeng_lib/convert"
 	"testing"
 
-	convert "github.com/szyhf/go-convert"
 	"github.com/szyhf/go-excel/internal"
 )
 
@@ -45,11 +45,26 @@ func TestNewReader(t *testing.T) {
 	if err != nil {
 		t.Error(err)
 	}
+	_, err = conn.NewReader(sheetName)
+	if err != nil {
+		t.Error(err)
+	}
+
+	defer conn.Close()
+}
+
+func TestRead(t *testing.T) {
+	// file
+	conn := internal.NewConnect()
+	err := conn.Open(filePath)
+	if err != nil {
+		t.Error(err)
+	}
 	rd, err := conn.NewReader(sheetName)
 	if err != nil {
 		t.Error(err)
 	}
-	conn.Close()
+	defer conn.Close()
 	for rd.Next() {
 		var s Simple
 		err := rd.Read(&s)
@@ -59,4 +74,25 @@ func TestNewReader(t *testing.T) {
 			fmt.Printf("%+v\n", convert.MustJsonPrettyString(s))
 		}
 	}
+}
+
+func TestReadAll(t *testing.T) {
+	// file
+	conn := internal.NewConnect()
+	err := conn.Open(filePath)
+	if err != nil {
+		t.Error(err)
+	}
+	rd, err := conn.NewReader(sheetName)
+	if err != nil {
+		t.Error(err)
+	}
+	defer conn.Close()
+
+	var slc []Simple
+	err = rd.ReadAll(&slc)
+	if err != nil {
+		t.Error(err)
+	}
+	fmt.Printf("%s\n", convert.MustJsonPrettyString(slc))
 }

@@ -66,6 +66,26 @@ func (this *Read) Close() error {
 
 // Read all rows
 func (this *Read) ReadAll(container interface{}) error {
+	val := reflect.ValueOf(container)
+	typ := reflect.Indirect(val).Type()
+
+	if val.Kind() != reflect.Ptr {
+		return excel.ErrInvalidConatiner
+	}
+	if typ.Kind() != reflect.Slice {
+		return excel.ErrInvalidConatiner
+	}
+
+	elemTyp := typ.Elem()
+	elemSchema := newSchema(elemTyp)
+
+	for this.Next() {
+		elmVal := SliceNextElem(val.Elem())
+		err := this.readToValue(elemSchema, elmVal)
+		if err != nil {
+			return err
+		}
+	}
 	return nil
 }
 
