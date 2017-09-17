@@ -62,7 +62,7 @@ func (this *Connect) Close() error {
 //        if sheetNamer is a object implements `GetXLSXSheetName()string`, the return value will be used.
 //        otherwise, will use sheetNamer as struct and reflect for it's name.
 func (this *Connect) NewReader(sheetNamer interface{}) (excel.Reader, error) {
-	return this.NewReaderByConfig(excel.Config{Sheet: sheetNamer})
+	return this.NewReaderByConfig(&excel.Config{Sheet: sheetNamer})
 }
 
 func (this *Connect) MustReader(sheetNamer interface{}) excel.Reader {
@@ -73,7 +73,7 @@ func (this *Connect) MustReader(sheetNamer interface{}) excel.Reader {
 	return rd
 }
 
-func (this *Connect) NewReaderByConfig(config excel.Config) (excel.Reader, error) {
+func (this *Connect) NewReaderByConfig(config *excel.Config) (excel.Reader, error) {
 	if this.zipReader == nil {
 		return nil, excel.ErrConnectNotOpened
 	}
@@ -89,6 +89,14 @@ func (this *Connect) NewReaderByConfig(config excel.Config) (excel.Reader, error
 	reader, err := newReader(this, rc, config.TitleRowIndex, config.Skip)
 	rc.Close()
 	return reader, err
+}
+
+func (this *Connect) MustReaderByConfig(config *excel.Config) excel.Reader {
+	rd, err := this.NewReaderByConfig(config)
+	if err != nil {
+		panic(err)
+	}
+	return rd
 }
 
 func (this *Connect) getSharedString(id int) string {

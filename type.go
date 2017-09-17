@@ -9,6 +9,9 @@ type Connecter interface {
 	NewReader(sheetNamer interface{}) (Reader, error)
 	// Panic if can not generate a new reader
 	MustReader(sheetNamer interface{}) Reader
+
+	NewReaderByConfig(config *Config) (Reader, error)
+	MustReaderByConfig(config *Config) Reader
 }
 
 type Reader interface {
