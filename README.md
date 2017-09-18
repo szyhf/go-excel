@@ -9,43 +9,94 @@ go get github.com/szyhf/go-excel
 
 ## Example | 用例
 
-Assume you have a xlsx file has a sheet named "Simple" and looks like below:
+Here is a simple example.
 
-|ID|NameOf|Age|Slice|Temp|
+Assume you have a xlsx file like below:
+
+|ID|NameOf|Age|Slice|UnmarshalString|
 |-|-|-|-|-|
-|1|Andy|15|1-2-3|{"Foo":"Bar"}|
-|2|Leo||2||
-||||||
-|9|Ben|14|3||
-|10|Ming|10|9-2-3||
+|1|Andy|1|1\|2|{"Foo":"Andy"}|
+|2|Leo|2|2\|3\|4|{"Foo":"Leo"}|
+|3|Ben|3|3\|4\|5\|6|{"Foo":"Ben"}|
+|4|Ming|4|1|{"Foo":"Ming"}|
+
++ the first row is the title row.
++ other row is the data row.
+
+```go
+// defined a struct
+type Standard struct {
+	// use field name as default column name
+	ID      int
+	// column means to map the column name
+	Name    string `xlsx:"column(NameOf)"`
+	// you can map a column into more than one field
+	NamePtr *string `xlsx:"column(NameOf)"`
+	// omit `column` if only want to map to column name, it's equal to `column(AgeOf)`
+	Age     int     `xlsx:"AgeOf"`
+	// split means to split the string into slice by the `|`
+	Slice   []int `xlsx:"split(|)"`
+	// *Temp implement the `encoding.BinaryUnmarshaler`
+	Temp    *Temp `xlsx:"column(UnmarshalString)"`
+	// use '-' to ignore.
+	Ignored string `xlsx:"-"`
+}
+
+type Temp struct {
+	Foo string
+}
+
+// self define a unmarshal interface to unmarshal string.
+func (this *Temp) UnmarshalBinary(d []byte) error {
+	return json.Unmarshal(d, this)
+}
+
+func main() {
+	// will assume the sheet name as "Standard" from the struct name.
+	var stdList []Standard
+	err := excel.UnmarshalXLSX("./testdata/simple.xlsx", &stdList)
+	if err != nil {
+		panic(err)
+	}
+}
+```
+
+> See the `simple.xlsx`.`Standard` in `testdata` and code in `./test/standard_test.go` for testing.
+
+## Advance | 进阶用法
+
+The advance usage can make more options.
+
+### Config | 配置
+
+Using a config as "excel.Config":
+
+```go
+type Config struct {
+	// Sheet name as string or sheet model as object.
+	Sheet interface{}
+	// Use the index row as title, every row before title-row will be ignore, default is 0.
+	TitleRowIndex int
+	// Skip n row after title, default is 0 (not skip).
+	Skip int
+	// Auto prefix to sheet name.
+	Prefix string
+	// Auto suffix to sheet name.
+	Suffix string
+}
+```
+
+A complete usage is list below:
+
+```go
+func main(){
+
+}
+```
 
 + The 3rd row of the table has no value so reader will auto skip it.
 + The `Age` of Leo is empty so that you can use `default` tag to fill with default value.
 + The `Temp` of Andy is a json string so that use `encoding.BinaryUnmarshaler` can auto unmarshal it.
-
->> See the `simple.xlsx` in `testdata`
-
-So define a struct like this:
-
-```go
-type Simple struct {
-	ID    int    // No tag if not needed.
-	Name  string `xlsx:column(NameOf)`
-	Age   int    `xlsx:default(0)`
-	Slice []int  `xlsx:"split(-)"`
-	Temp  Temp   // Will auto use the string in cell to Unmarshal to `Temp`
-}
-
-type Temp struct{
-	Foo string
-	Bar int
-}
-// Implement the `encoding.BinaryMarshaler`
-func (this*Temp)UnmarshalBinary(d []data)error{
-	return json.Unmarshal(d)
-}
-
-```
 
 Then read the xlsx file will like this:
 
