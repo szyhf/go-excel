@@ -16,7 +16,6 @@ func UnmarshalXLSX(filePath string, container interface{}) error {
 	conn := NewConnecter()
 	err := conn.Open(filePath)
 	if err != nil {
-		conn.Close()
 		return err
 	}
 

@@ -118,6 +118,7 @@ func (this *Read) readToValue(s *Schema, v reflect.Value) (err error) {
 				for _, notFilledFields := range fieldsMap {
 					for _, fieldCnf := range notFilledFields {
 						fieldValue := v.Field(fieldCnf.FieldIndex)
+						// fmt.Printf("Fill %s = %v with default: %s", v.Type().Field(fieldCnf.FieldIndex).Name, fieldValue.Interface(), fieldCnf.DefaultValue)
 						err = fieldCnf.ScanDefault(fieldValue)
 						if err != nil {
 							return err
@@ -175,7 +176,8 @@ func newReader(cn *Connect, workSheetFileReader io.Reader, titleRowIndex, skip i
 	}
 	// consider title row
 	var i = 0
-	for ; i < titleRowIndex; i++ {
+	// <= because Next() have to put the pointer to the Index row.
+	for ; i <= titleRowIndex; i++ {
 		if !rd.Next() {
 			return rd, nil
 		}
@@ -183,7 +185,8 @@ func newReader(cn *Connect, workSheetFileReader io.Reader, titleRowIndex, skip i
 	rd.title, err = newRowAsMap(rd)
 
 	// consider skip
-	for i = 0; i < skip; i++ {
+	// -1 because Next() need to put the pointer one row before first data row.
+	for i = 0; i < skip-1; i++ {
 		if !rd.Next() {
 			return rd, nil
 		}
