@@ -61,7 +61,7 @@ func main() {
 }
 ```
 
-> See the `simple.xlsx`.`Standard` in `testdata` and code in `./test/standard_test.go` for testing.
+> See the `simple.xlsx`.`Standard` in `testdata` and code in `./test/standard_test.go` for details.
 
 ## Advance | 进阶用法
 
@@ -73,7 +73,10 @@ Using a config as "excel.Config":
 
 ```go
 type Config struct {
-	// Sheet name as string or sheet model as object.
+	// sheet: if sheet is string, will use sheet as sheet name.
+	//        if sheet is a object implements `GetXLSXSheetName()string`, the return value will be used.
+	//        otherwise, will use sheet as struct and reflect for it's name.
+	// 		  if sheet is a slice, the type of element will be used to infer like before.
 	Sheet interface{}
 	// Use the index row as title, every row before title-row will be ignore, default is 0.
 	TitleRowIndex int
@@ -86,7 +89,15 @@ type Config struct {
 }
 ```
 
-For more details can see the code in `./test/advance_test.go`.
+Tips:
+
++ Empty row will be skipped.
++ Column larger than len(TitleRow) will be skipped.
++ Only empty cell can fill with default value, if a cell can not parse into a field it will return an error.
++ Default value can be unmarshal by `encoding.BinaryUnmarshaler`, too.
++ If no title row privoded, the default column name in exce like `'A', 'B', 'C', 'D' ......, 'XFC', 'XFD'` can be used as column name by 26-number-system.
+
+For more details can see the code in `./test/advance_test.go` and file in `simple.xlsx`.`Advance.suffx` sheet.
 
 ## XLSX Tag | 标签使用
 
@@ -112,6 +123,8 @@ Split a string and convert them to a slice, it won't work if not set.
 + Fill string cell with value of shared string xml. √
 + Can set the column name row, default is the first row. √
 + Read a row to a struct by column name. √
++ Read a row into a map.
++ Read a row into a map by primary key.
 
 ## Thinking | 随想
 
