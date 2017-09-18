@@ -19,7 +19,7 @@ type SimpleWithTag struct {
 }
 
 func TestPraseTag(t *testing.T) {
-	s := newSchema(reflect.TypeOf(&SimpleWithTag{}))
+	s := newSchema(reflect.TypeOf(SimpleWithTag{}))
 	fmt.Printf("%s", convert.MustJsonPrettyString(s))
 }
 
