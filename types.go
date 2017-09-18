@@ -6,7 +6,4 @@ import (
 
 type Connecter = internal.Connecter
 type Reader = internal.Reader
-
-func NewConnecter() Connecter {
-	return internal.NewConnect()
-}
+type Config = internal.Config
