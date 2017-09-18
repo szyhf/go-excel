@@ -22,6 +22,7 @@ type Field struct {
 }
 
 type Schema struct {
+	Type reflect.Type
 	// map[FieldIndex]*Field
 	Fields []*Field
 }
@@ -44,6 +45,7 @@ func newSchema(t reflect.Type) *Schema {
 			}
 		}
 	}
+	s.Type = t
 	return s
 }
 
