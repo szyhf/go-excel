@@ -42,6 +42,10 @@ type Standard struct {
 	Ignored string `xlsx:"-"`
 }
 
+// func (this Standard) GetXLSXSheetName() string {
+// 	return "Some other sheet name if need"
+// }
+
 type Temp struct {
 	Foo string
 }
