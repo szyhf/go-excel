@@ -114,8 +114,18 @@ func (this *Read) readToValue(s *Schema, v reflect.Value) (err error) {
 			}
 		case xml.EndElement:
 			if token.Name.Local == ROW {
+				// fill default value to column not read.
+				for _, notFilledFields := range fieldsMap {
+					for _, fieldCnf := range notFilledFields {
+						fieldValue := v.Field(fieldCnf.FieldIndex)
+						err = fieldCnf.ScanDefault(fieldValue)
+						if err != nil {
+							return err
+						}
+					}
+				}
 				// 结束当前行
-				return nil
+				return err
 			}
 		case xml.CharData:
 			trimedColumnName := strings.TrimRight(tempCell.R, ALL_NUMBER)
@@ -128,33 +138,20 @@ func (this *Read) readToValue(s *Schema, v reflect.Value) (err error) {
 				valStr = string(token)
 			}
 
-			fields := fieldsMap[columnIndex]
+			fields, ok := fieldsMap[columnIndex]
+			if !ok {
+				err = fmt.Errorf("unexpect column at \"%s\"", trimedColumnName)
+				break
+			}
 			for _, fieldCnf := range fields {
 				fieldValue := v.Field(fieldCnf.FieldIndex)
-				switch fieldValue.Kind() {
-				case reflect.Slice, reflect.Array:
-					if len(fieldCnf.Split) != 0 {
-						// use split
-						elems := strings.Split(valStr, fieldCnf.Split)
-						fieldValue.Set(reflect.MakeSlice(fieldValue.Type(), 0, len(elems)))
-						err = ScanSlice(elems, fieldValue.Addr())
-					}
-				case reflect.Ptr:
-					newValue := fieldValue
-					if newValue.IsNil() {
-						for newValue.Kind() == reflect.Ptr {
-							newValue.Set(reflect.New(newValue.Type().Elem()))
-							newValue = newValue.Elem()
-						}
-					}
-					err = Scan(valStr, newValue.Addr().Interface())
-				default:
-					err = Scan(valStr, fieldValue.Addr().Interface())
-				}
-				if err != nil {
-					println(fieldCnf.ColumnName)
+				err = fieldCnf.Scan(valStr, fieldValue)
+				if err != nil && len(valStr) > 0 {
 					return err
 				}
+			}
+			if err == nil {
+				delete(fieldsMap, columnIndex)
 			}
 		}
 	}

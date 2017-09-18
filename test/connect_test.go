@@ -23,11 +23,11 @@ func TestOpen(t *testing.T) {
 }
 
 type Simple struct {
-	ID    int      `xlsx:"column(ID)"`
-	Name  string   `xlsx:"column(Slice)"`
-	Slice *string  `xlsx:"column(C)"`
-	Hello []string `xlsx:"column(Hello);split(|)"`
-	Temp  *Temp    `xlsx:"Temp"`
+	ID      int      `xlsx:"column(ID)"`
+	Name    string   `xlsx:"column(NameOf)"`
+	NamePtr *string  `xlsx:"column(NameOf);default(DefaultName)"`
+	Slice   []string `xlsx:"column(Slice);split(|);"`
+	Temp    *Temp    `xlsx:"column(UnmarshalString);"`
 }
 
 type Temp struct {

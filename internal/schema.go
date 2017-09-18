@@ -13,7 +13,7 @@ const splitTag = "split"
 const defaultTag = "default"
 const ignoreTag = "-"
 
-type Field struct {
+type FieldConfig struct {
 	FieldIndex int
 	// use ptr in order to know if configed.
 	ColumnName   string
@@ -21,16 +21,49 @@ type Field struct {
 	Split        string
 }
 
+func (this *FieldConfig) Scan(valStr string, fieldValue reflect.Value) error {
+	var err error
+	switch fieldValue.Kind() {
+	case reflect.Slice, reflect.Array:
+		if len(this.Split) != 0 && len(valStr) > 0 {
+			// use split
+			elems := strings.Split(valStr, this.Split)
+			fieldValue.Set(reflect.MakeSlice(fieldValue.Type(), 0, len(elems)))
+			err = ScanSlice(elems, fieldValue.Addr())
+		}
+	case reflect.Ptr:
+		newValue := fieldValue
+		if newValue.IsNil() {
+			for newValue.Kind() == reflect.Ptr {
+				newValue.Set(reflect.New(newValue.Type().Elem()))
+				newValue = newValue.Elem()
+			}
+		}
+		err = Scan(valStr, newValue.Addr().Interface())
+	default:
+		err = Scan(valStr, fieldValue.Addr().Interface())
+	}
+	return err
+}
+
+func (this *FieldConfig) ScanDefault(fieldValue reflect.Value) error {
+	err := this.Scan(this.DefaultValue, fieldValue)
+	if err != nil && len(this.DefaultValue) > 0 {
+		return err
+	}
+	return nil
+}
+
 type Schema struct {
 	Type reflect.Type
 	// map[FieldIndex]*Field
-	Fields []*Field
+	Fields []*FieldConfig
 }
 
 func newSchema(t reflect.Type) *Schema {
 
 	s := &Schema{
-		Fields: make([]*Field, 0, t.NumField()),
+		Fields: make([]*FieldConfig, 0, t.NumField()),
 	}
 	for i := 0; i < t.NumField(); i++ {
 		field := t.Field(i)
@@ -49,8 +82,8 @@ func newSchema(t reflect.Type) *Schema {
 	return s
 }
 
-func praseTagValue(v string) *Field {
-	c := &Field{}
+func praseTagValue(v string) *FieldConfig {
+	c := &FieldConfig{}
 	params := strings.Split(v, tagSplit)
 
 	for _, param := range params {
@@ -76,7 +109,7 @@ func getTagParam(v string) (key, value string) {
 	}
 }
 
-func fillField(c *Field, k, v string) {
+func fillField(c *FieldConfig, k, v string) {
 	switch k {
 	case columnTag:
 		c.ColumnName = v

@@ -11,6 +11,14 @@ import (
 
 // ref: gopkg.in/redis.v5
 
+func ScanByDefault(s string, ptr interface{}, def string) error {
+	err := Scan(s, ptr)
+	if err != nil {
+		err = Scan(def, ptr)
+	}
+	return err
+}
+
 func Scan(s string, ptr interface{}) error {
 	var err error
 	switch p := ptr.(type) {
@@ -53,8 +61,7 @@ func Scan(s string, ptr interface{}) error {
 			err = fmt.Errorf("can't unmarshar by encoding.BinaryUnmarshaler: %s", err)
 		}
 	default:
-		err = fmt.Errorf(
-			"can't unmarshal %T (consider implementing encoding.TextUnmarshaler)", ptr)
+		err = fmt.Errorf("can't unmarshal %T (consider implementing encoding.BinaryUnmarshaler)", p)
 	}
 	return err
 }
