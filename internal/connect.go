@@ -24,7 +24,7 @@ type Connect struct {
 	zipReader            *zip.ReadCloser
 }
 
-func NewConnect() Connecter {
+func NewConnect() *Connect {
 	return &Connect{}
 }
 

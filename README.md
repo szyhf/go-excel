@@ -55,13 +55,52 @@ func (this *Temp) UnmarshalBinary(d []byte) error {
 	return json.Unmarshal(d, this)
 }
 
-func main() {
+func simpleUsage() {
 	// will assume the sheet name as "Standard" from the struct name.
 	var stdList []Standard
 	err := excel.UnmarshalXLSX("./testdata/simple.xlsx", &stdList)
 	if err != nil {
 		panic(err)
 	}
+}
+
+func defaultUsage(){
+	conn := excel.NewConnecter()
+	err := conn.Open("./testdata/simple.xlsx")
+	if err != nil {
+		panic(err)
+	}
+	defer conn.Close()
+
+	// Generate an new reader of a sheet
+	// sheetNamer: if sheetNamer is string, will use sheet as sheet name.
+	//             if sheetNamer is a object implements `GetXLSXSheetName()string`, the return value will be used.
+	//             otherwise, will use sheetNamer as struct and reflect for it's name.
+	// 			   if sheetNamer is a slice, the type of element will be used to infer like before.
+	rd, err := conn.NewReader(stdSheetName)
+	if err != nil {
+		panic(err)
+	}
+	defer rd.Close()
+
+	for rd.Next() {
+		var s Standard
+		// Read a row into a struct.
+		err:=rd.Read(&s)
+		if err!=nil{
+			panic(err)
+		}
+		fmt.Printf("%+v",s)
+	}
+
+	// Read all is also supported.
+	// var stdList []Standard
+	// err = rd.ReadAll(&stdList)
+	// if err != nil {
+	//   panic(err)
+	//	 return
+	// }
+	// fmt.Printf("%+v",stdList)
 }
 ```
 
