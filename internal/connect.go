@@ -85,6 +85,7 @@ func (this *Connect) NewReaderByConfig(config *Config) (Reader, error) {
 		return nil, ErrConnectNotOpened
 	}
 	sheet := utils.ParseSheetName(config.Sheet)
+	sheet = config.Prefix + sheet + config.Suffix
 	workSheetFile, ok := this.worksheetNameFileMap[sheet]
 	if !ok {
 		return nil, fmt.Errorf("can not find worksheet named = %s", sheet)
