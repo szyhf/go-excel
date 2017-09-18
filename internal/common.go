@@ -1,4 +1,4 @@
-package excel
+package internal
 
 type Config struct {
 	// Sheet name as string or sheet model as object.

@@ -1,6 +1,8 @@
-package excel
+package internal
 
-import "errors"
+import (
+	"errors"
+)
 
 var (
 	ErrConnectNotOpened      = errors.New("connect should opened.")

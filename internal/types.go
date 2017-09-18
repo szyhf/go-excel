@@ -1,4 +1,4 @@
-package excel
+package internal
 
 type Connecter interface {
 	// Open a file of excel

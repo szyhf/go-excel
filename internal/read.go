@@ -11,7 +11,6 @@ import (
 
 	convert "github.com/szyhf/go-convert"
 
-	"github.com/szyhf/go-excel"
 	"github.com/szyhf/go-excel/internal/twenty_six"
 )
 
@@ -70,10 +69,10 @@ func (this *Read) ReadAll(container interface{}) error {
 	typ := reflect.Indirect(val).Type()
 
 	if val.Kind() != reflect.Ptr {
-		return excel.ErrInvalidConatiner
+		return ErrInvalidConatiner
 	}
 	if typ.Kind() != reflect.Slice {
-		return excel.ErrInvalidConatiner
+		return ErrInvalidConatiner
 	}
 
 	elemTyp := typ.Elem()
@@ -163,7 +162,7 @@ func (this *Read) readToValue(s *Schema, v reflect.Value) (err error) {
 	return errors.New("No row")
 }
 
-func newReader(cn *Connect, workSheetFileReader io.Reader, titleRowIndex, skip int) (excel.Reader, error) {
+func newReader(cn *Connect, workSheetFileReader io.Reader, titleRowIndex, skip int) (Reader, error) {
 	rd, err := newBaseReaderByWorkSheetFile(cn, workSheetFileReader)
 	if err != nil {
 		return nil, err

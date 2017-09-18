@@ -6,12 +6,12 @@ import (
 	"testing"
 
 	"github.com/szyhf/go-convert"
-	"github.com/szyhf/go-excel/internal"
+	excel "github.com/szyhf/go-excel"
 )
 
 func TestOpen(t *testing.T) {
 	// file
-	conn := internal.NewConnect()
+	conn := excel.NewConnecter()
 	err := conn.Open(filePath)
 	if err != nil {
 		t.Error(err)
@@ -40,7 +40,7 @@ func (this *Temp) UnmarshalBinary(d []byte) error {
 
 func TestNewReader(t *testing.T) {
 	// file
-	conn := internal.NewConnect()
+	conn := excel.NewConnecter()
 	err := conn.Open(filePath)
 	if err != nil {
 		t.Error(err)
@@ -55,7 +55,7 @@ func TestNewReader(t *testing.T) {
 
 func TestRead(t *testing.T) {
 	// file
-	conn := internal.NewConnect()
+	conn := excel.NewConnecter()
 	err := conn.Open(filePath)
 	defer conn.Close()
 	if err != nil {
@@ -79,7 +79,7 @@ func TestRead(t *testing.T) {
 
 func TestReadAll(t *testing.T) {
 	// file
-	conn := internal.NewConnect()
+	conn := excel.NewConnecter()
 	err := conn.Open(filePath)
 	if err != nil {
 		t.Error(err)

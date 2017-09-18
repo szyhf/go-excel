@@ -5,10 +5,8 @@ import (
 	"errors"
 	"strings"
 
-	"github.com/szyhf/go-excel"
 	"github.com/szyhf/go-excel/internal/utils"
 )
-
 
 type Connect struct {
 	// list of sorted sheet name
@@ -25,7 +23,7 @@ type Connect struct {
 	zipReader            *zip.ReadCloser
 }
 
-func NewConnect() excel.Connecter {
+func NewConnect() Connecter {
 	return &Connect{}
 }
 
@@ -69,11 +67,11 @@ func (this *Connect) Close() error {
 // sheetNamer: if sheetNamer is string, will use sheet as sheet name.
 //        if sheetNamer is a object implements `GetXLSXSheetName()string`, the return value will be used.
 //        otherwise, will use sheetNamer as struct and reflect for it's name.
-func (this *Connect) NewReader(sheetNamer interface{}) (excel.Reader, error) {
-	return this.NewReaderByConfig(&excel.Config{Sheet: sheetNamer})
+func (this *Connect) NewReader(sheetNamer interface{}) (Reader, error) {
+	return this.NewReaderByConfig(&Config{Sheet: sheetNamer})
 }
 
-func (this *Connect) MustReader(sheetNamer interface{}) excel.Reader {
+func (this *Connect) MustReader(sheetNamer interface{}) Reader {
 	rd, err := this.NewReader(sheetNamer)
 	if err != nil {
 		panic(err)
@@ -81,14 +79,14 @@ func (this *Connect) MustReader(sheetNamer interface{}) excel.Reader {
 	return rd
 }
 
-func (this *Connect) NewReaderByConfig(config *excel.Config) (excel.Reader, error) {
+func (this *Connect) NewReaderByConfig(config *Config) (Reader, error) {
 	if this.zipReader == nil {
-		return nil, excel.ErrConnectNotOpened
+		return nil, ErrConnectNotOpened
 	}
 	sheet := utils.ParseSheetName(config.Sheet)
 	workSheetFile, ok := this.worksheetNameFileMap[sheet]
 	if !ok {
-		return nil, excel.ErrWorksheetsNotExist
+		return nil, ErrWorksheetsNotExist
 	}
 	rc, err := workSheetFile.Open()
 	if err != nil {
@@ -99,7 +97,7 @@ func (this *Connect) NewReaderByConfig(config *excel.Config) (excel.Reader, erro
 	return reader, err
 }
 
-func (this *Connect) MustReaderByConfig(config *excel.Config) excel.Reader {
+func (this *Connect) MustReaderByConfig(config *Config) Reader {
 	rd, err := this.NewReaderByConfig(config)
 	if err != nil {
 		panic(err)
@@ -131,13 +129,13 @@ func (this *Connect) init() error {
 		}
 	}
 	if this.workbookFile == nil {
-		return excel.ErrWorkbookNotExist
+		return ErrWorkbookNotExist
 	}
 	if this.sharedStringsFile == nil {
-		return excel.ErrSharedStringsNotExist
+		return ErrSharedStringsNotExist
 	}
 	if this.worksheetIDFileMap == nil || len(this.worksheetIDFileMap) == 0 {
-		return excel.ErrWorkbookNotExist
+		return ErrWorkbookNotExist
 	}
 	var err error
 	// prepare workbook
