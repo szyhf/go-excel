@@ -9,9 +9,8 @@ import (
 	"github.com/szyhf/go-excel/internal/utils"
 )
 
-type Connect struct {
-	FilePath string
 
+type Connect struct {
 	// list of sorted sheet name
 	sheets        []string
 	sharedStrings []string
@@ -54,6 +53,15 @@ func (this *Connect) Close() error {
 		return err
 	}
 	this.zipReader = nil
+
+	this.sheets = this.sheets[:0]
+	this.sharedStrings = this.sharedStrings[:0]
+	this.sharedStringsFile = nil
+	this.workbookFile = nil
+
+	this.worksheetIDFileMap = nil
+	this.worksheetNameFileMap = nil
+
 	return nil
 }
 
@@ -142,7 +150,11 @@ func (this *Connect) init() error {
 	if err != nil {
 		return err
 	}
-	this.sharedStrings = readSharedStringsXML(rc)
+	sharedStrings := readSharedStringsXML(rc)
+	if this.sharedStrings == nil {
+		this.sharedStrings = make([]string, 0, len(sharedStrings))
+	}
+	this.sharedStrings = append(this.sharedStrings, sharedStrings...)
 	rc.Close()
 	return nil
 }
@@ -159,7 +171,9 @@ func (this *Connect) readWorkbook() error {
 	if err != nil {
 		return err
 	}
-	this.sheets = make([]string, 0, len(wb.Sheets.Sheet))
+	if this.sheets == nil {
+		this.sheets = make([]string, 0, len(wb.Sheets.Sheet))
+	}
 	this.worksheetNameFileMap = make(map[string]*zip.File)
 	for _, sheet := range wb.Sheets.Sheet {
 		this.sheets = append(this.sheets, sheet.Name)
