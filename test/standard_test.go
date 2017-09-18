@@ -73,9 +73,9 @@ type Standard struct {
 	WantIgnored string `xlsx:"-"`
 }
 
-func (this Standard) GetXLSXSheetName() string {
-	return "Some sheet name if need"
-}
+// func (this Standard) GetXLSXSheetName() string {
+// 	return "Some sheet name if need"
+// }
 
 type Temp struct {
 	Foo string
