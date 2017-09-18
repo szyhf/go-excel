@@ -86,80 +86,9 @@ type Config struct {
 }
 ```
 
-A complete usage is list below:
+For more details can see the code in `./test/advance_test.go`.
 
-```go
-func main(){
-
-}
-```
-
-+ The 3rd row of the table has no value so reader will auto skip it.
-+ The `Age` of Leo is empty so that you can use `default` tag to fill with default value.
-+ The `Temp` of Andy is a json string so that use `encoding.BinaryUnmarshaler` can auto unmarshal it.
-
-Then read the xlsx file will like this:
-
-```go
-conn := excel.NewConnect()
-err := conn.Open("path/to/file.xlsx")
-defer conn.Close()
-if err != nil {
-	panic(err)
-}
-
-rd, err := conn.NewReader("Simple")
-if err != nil {
-	panic(err)
-}
-
-for rd.Next() {
-	var s Simple
-	err := rd.Read(&s)
-	if err != nil {
-		panic(err)
-	} else {
-		fmt.Printf("%+v\n", s)
-	}
-}
-```
-
-Or just read to an slice:
-
-```go
-rd, err := conn.NewReader("Simple")
-if err != nil {
-	panic(err)
-}
-var slc []Simple
-err = rd.ReadAll(&slc)
-if err != nil {
-	panic(err)
-}
-```
-
-Use config for more option:
-
-```go
-config := &excel.Config{
-	// Sheet name as string or sheet model as object.
-	Sheet: "Simple"
-	// Use the index row as title, every row before title-row will be ignore, default is 0.
-	TitleRowIndex: 0
-	// Skip n row after title, default is 0 (not skip).
-	Skip: 1
-}
-rd, err := conn.NewReaderByConfig(config)
-if err != nil {
-	panic(err)
-}
-// skip the usage.
-rd.Next()
-```
-
-For more usage to read the `test` directory.
-
-## Tag | 标签使用
+## XLSX Tag | 标签使用
 
 ### column
 
@@ -172,7 +101,6 @@ Set default value when no value is filled in excel cell, by default is 0 or "".
 ### split
 
 Split a string and convert them to a slice, it won't work if not set.
-
 
 ## RoadMap | 开发计划
 
