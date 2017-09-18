@@ -3,6 +3,7 @@ package internal
 import (
 	"archive/zip"
 	"errors"
+	"fmt"
 	"strings"
 
 	"github.com/szyhf/go-excel/internal/utils"
@@ -86,7 +87,7 @@ func (this *Connect) NewReaderByConfig(config *Config) (Reader, error) {
 	sheet := utils.ParseSheetName(config.Sheet)
 	workSheetFile, ok := this.worksheetNameFileMap[sheet]
 	if !ok {
-		return nil, ErrWorksheetsNotExist
+		return nil, fmt.Errorf("can not find worksheet named = %s", sheet)
 	}
 	rc, err := workSheetFile.Open()
 	if err != nil {

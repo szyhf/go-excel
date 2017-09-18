@@ -61,7 +61,6 @@ type Schema struct {
 }
 
 func newSchema(t reflect.Type) *Schema {
-
 	s := &Schema{
 		Fields: make([]*FieldConfig, 0, t.NumField()),
 	}
@@ -76,6 +75,13 @@ func newSchema(t reflect.Type) *Schema {
 				}
 				s.Fields = append(s.Fields, fieldCnf)
 			}
+		} else {
+			// use default config
+			fieldCnf := &FieldConfig{
+				FieldIndex: i,
+				ColumnName: field.Name,
+			}
+			s.Fields = append(s.Fields, fieldCnf)
 		}
 	}
 	s.Type = t

@@ -23,7 +23,6 @@ func UnmarshalXLSX(filePath string, container interface{}) error {
 	rd, err := conn.NewReader(container)
 	if err != nil {
 		conn.Close()
-		rd.Close()
 		return err
 	}
 
