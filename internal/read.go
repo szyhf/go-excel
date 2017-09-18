@@ -1,7 +1,6 @@
 package internal
 
 import (
-	"encoding"
 	"encoding/xml"
 	"errors"
 	"fmt"
@@ -14,12 +13,11 @@ import (
 	"github.com/szyhf/go-excel/internal/twenty_six"
 )
 
-var typeOfTextUnmarshaler = reflect.TypeOf(encoding.TextUnmarshaler(nil))
-
 type Read struct {
 	connecter *Connect
 	decoder   *xml.Decoder
 	title     *Row
+	schameMap map[reflect.Type]*Schema
 }
 
 func (this *Read) Next() bool {
@@ -45,8 +43,7 @@ func (this *Read) Read(i interface{}) error {
 		return fmt.Errorf("%T should be pointer.", i)
 	}
 
-	s := newSchema(t)
-
+	s := this.getSchame(t)
 	v := reflect.ValueOf(i)
 	if v.IsNil() {
 		v.Set(reflect.New(t))
@@ -60,6 +57,9 @@ func (this *Read) Close() error {
 	if this.decoder != nil {
 		this.decoder = nil
 	}
+	this.connecter = nil
+	this.title = nil
+	this.schameMap = nil
 	return nil
 }
 
@@ -162,6 +162,15 @@ func (this *Read) readToValue(s *Schema, v reflect.Value) (err error) {
 	return errors.New("No row")
 }
 
+func (this *Read) getSchame(t reflect.Type) *Schema {
+	s, ok := this.schameMap[t]
+	if !ok {
+		s = newSchema(t)
+		this.schameMap[t] = s
+	}
+	return s
+}
+
 func newReader(cn *Connect, workSheetFileReader io.Reader, titleRowIndex, skip int) (Reader, error) {
 	rd, err := newBaseReaderByWorkSheetFile(cn, workSheetFileReader)
 	if err != nil {
@@ -182,6 +191,7 @@ func newReader(cn *Connect, workSheetFileReader io.Reader, titleRowIndex, skip i
 			return rd, nil
 		}
 	}
+	rd.schameMap = make(map[reflect.Type]*Schema)
 	return rd, err
 }
 
