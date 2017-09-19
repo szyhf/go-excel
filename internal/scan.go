@@ -89,12 +89,19 @@ func ScanSlice(data []string, sliceValue reflect.Value) error {
 }
 
 func SliceNextElem(v reflect.Value) reflect.Value {
+	elemType := v.Type().Elem()
+
 	if v.Len() < v.Cap() {
 		v.Set(v.Slice(0, v.Len()+1))
-		return v.Index(v.Len() - 1)
+		elem := v.Index(v.Len() - 1)
+		if elem.Kind() == reflect.Ptr {
+			if elem.IsNil() {
+				elem.Set(reflect.New(elemType.Elem()))
+			}
+			elem = elem.Elem()
+		}
+		return elem
 	}
-
-	elemType := v.Type().Elem()
 
 	if elemType.Kind() == reflect.Ptr {
 		elem := reflect.New(elemType.Elem())

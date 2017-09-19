@@ -38,10 +38,13 @@ func (this *Read) Next() bool {
 func (this *Read) Read(i interface{}) error {
 	t := reflect.TypeOf(i)
 	switch t.Kind() {
-	case reflect.Slice, reflect.Chan, reflect.Array, reflect.Map, reflect.Ptr:
+	case reflect.Ptr:
 		t = t.Elem()
+		if t.Kind() != reflect.Struct {
+			return fmt.Errorf("%T should be pointer to struct.", i)
+		}
 	default:
-		return fmt.Errorf("%T should be pointer.", i)
+		return fmt.Errorf("%T should be pointer to struct.", i)
 	}
 
 	s := this.getSchame(t)
@@ -77,6 +80,9 @@ func (this *Read) ReadAll(container interface{}) error {
 	}
 
 	elemTyp := typ.Elem()
+	if elemTyp.Kind() == reflect.Ptr {
+		elemTyp = elemTyp.Elem()
+	}
 	elemSchema := newSchema(elemTyp)
 
 	for this.Next() {
@@ -90,11 +96,11 @@ func (this *Read) ReadAll(container interface{}) error {
 }
 
 func (this *Read) readToValue(s *Schema, v reflect.Value) (err error) {
-	defer func() {
-		if rc := recover(); rc != nil {
-			err = fmt.Errorf("%s", rc)
-		}
-	}()
+	// defer func() {
+	// 	if rc := recover(); rc != nil {
+	// 		err = fmt.Errorf("%s", rc)
+	// 	}
+	// }()
 
 	tempCell := &xlsxC{}
 	fieldsMap := this.title.MapToFields(s)

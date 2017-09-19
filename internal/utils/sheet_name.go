@@ -18,6 +18,9 @@ func ParseSheetName(i interface{}) string {
 		switch typ.Kind() {
 		case reflect.Slice, reflect.Ptr:
 			typ = typ.Elem()
+			if typ.Kind() == reflect.Ptr {
+				typ = typ.Elem()
+			}
 			return ParseSheetName(reflect.New(typ).Elem().Interface())
 		default:
 			return typ.Name()
