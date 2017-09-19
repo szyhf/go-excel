@@ -178,7 +178,11 @@ func (this *Connect) readWorkbook() error {
 	for _, sheet := range wb.Sheets.Sheet {
 		this.sheets = append(this.sheets, sheet.Name)
 		// record the sheet name to *zip.File
-		file := this.worksheetIDFileMap[sheet.SheetID]
+		sheetID := strings.TrimLeft(sheet.ID, "rId")
+		file, ok := this.worksheetIDFileMap[sheetID]
+		if !ok {
+			return fmt.Errorf("Sheet.ID = %s not exist.", sheetID)
+		}
 		this.worksheetNameFileMap[sheet.Name] = file
 	}
 

@@ -22,8 +22,8 @@ func TestReadWorkbook(t *testing.T) {
 		Sheets: xlsxSheets{
 			Sheet: []xlsxSheet{
 				xlsxSheet{
-					Name:    "simple",
-					SheetID: "1",
+					Name: "simple",
+					ID:   "1",
 				},
 			},
 		},
