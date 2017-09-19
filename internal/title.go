@@ -12,7 +12,6 @@ import (
 )
 
 type TitleRow struct {
-	titled bool
 	// map[0]A1
 	dstMap map[string]int
 
@@ -69,7 +68,7 @@ func newRowAsMap(rd *Read) (r *TitleRow, err error) {
 	return nil, errors.New("No row")
 }
 
-// return: a copy of map[ColumnIndex][]*Field
+// return: a copy of map[ColumnIndex][]*FieldConfig
 func (this *TitleRow) MapToFields(s *Schema) (rowToFiled map[int][]*FieldConfig) {
 	fieldsMap, ok := this.typeFieldMap[s.Type]
 	if !ok {
