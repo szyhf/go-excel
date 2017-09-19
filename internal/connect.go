@@ -95,7 +95,6 @@ func (this *Connect) NewReaderByConfig(config *Config) (Reader, error) {
 		return nil, err
 	}
 	reader, err := newReader(this, rc, config.TitleRowIndex, config.Skip)
-	rc.Close()
 	return reader, err
 }
 
@@ -150,11 +149,7 @@ func (this *Connect) init() error {
 	if err != nil {
 		return err
 	}
-	sharedStrings := readSharedStringsXML(rc)
-	if this.sharedStrings == nil {
-		this.sharedStrings = make([]string, 0, len(sharedStrings))
-	}
-	this.sharedStrings = append(this.sharedStrings, sharedStrings...)
+	this.sharedStrings = readSharedStringsXML(rc)
 	rc.Close()
 	return nil
 }
@@ -165,10 +160,10 @@ func (this *Connect) readWorkbook() error {
 	if err != nil {
 		return err
 	}
-	defer rc.Close()
 
 	wb, err := readWorkbookXML(rc)
 	if err != nil {
+		rc.Close()
 		return err
 	}
 	if this.sheets == nil {
@@ -185,6 +180,6 @@ func (this *Connect) readWorkbook() error {
 		}
 		this.worksheetNameFileMap[sheet.Name] = file
 	}
-
+	rc.Close()
 	return nil
 }

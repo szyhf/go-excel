@@ -14,10 +14,11 @@ import (
 )
 
 type Read struct {
-	connecter *Connect
-	decoder   *xml.Decoder
-	title     *TitleRow
-	schameMap map[reflect.Type]*Schema
+	connecter          *Connect
+	decoder            *xml.Decoder
+	decoderReadCloseer io.ReadCloser
+	title              *TitleRow
+	schameMap          map[reflect.Type]*Schema
 }
 
 // Move the cursor to next row's start.
@@ -61,6 +62,10 @@ func (this *Read) Close() error {
 	if this.decoder != nil {
 		this.decoder = nil
 	}
+	if this.decoderReadCloseer != nil {
+		this.decoderReadCloseer.Close()
+		this.decoderReadCloseer = nil
+	}
 	this.connecter = nil
 	this.title = nil
 	this.schameMap = nil
@@ -96,12 +101,6 @@ func (this *Read) ReadAll(container interface{}) error {
 }
 
 func (this *Read) readToValue(s *Schema, v reflect.Value) (err error) {
-	// defer func() {
-	// 	if rc := recover(); rc != nil {
-	// 		err = fmt.Errorf("%s", rc)
-	// 	}
-	// }()
-
 	tempCell := &xlsxC{}
 	fieldsMap := this.title.MapToFields(s)
 	for t, err := this.decoder.Token(); err == nil; t, err = this.decoder.Token() {
@@ -149,7 +148,7 @@ func (this *Read) readToValue(s *Schema, v reflect.Value) (err error) {
 
 			fields, ok := fieldsMap[columnIndex]
 			if !ok {
-				err = fmt.Errorf("unexpect column at \"%s\"", trimedColumnName)
+				// Not an error, just ignore the column.
 				break
 			}
 			for _, fieldCnf := range fields {
@@ -165,6 +164,9 @@ func (this *Read) readToValue(s *Schema, v reflect.Value) (err error) {
 		}
 	}
 
+	if err != nil {
+		return err
+	}
 	return errors.New("No row")
 }
 
@@ -177,7 +179,7 @@ func (this *Read) getSchame(t reflect.Type) *Schema {
 	return s
 }
 
-func newReader(cn *Connect, workSheetFileReader io.Reader, titleRowIndex, skip int) (Reader, error) {
+func newReader(cn *Connect, workSheetFileReader io.ReadCloser, titleRowIndex, skip int) (Reader, error) {
 	rd, err := newBaseReaderByWorkSheetFile(cn, workSheetFileReader)
 	if err != nil {
 		return nil, err
@@ -205,7 +207,7 @@ func newReader(cn *Connect, workSheetFileReader io.Reader, titleRowIndex, skip i
 }
 
 // Make a base reader to sheet
-func newBaseReaderByWorkSheetFile(cn *Connect, rc io.Reader) (*Read, error) {
+func newBaseReaderByWorkSheetFile(cn *Connect, rc io.ReadCloser) (*Read, error) {
 	decoder := xml.NewDecoder(rc)
 	// step into root [xml.StartElement] token
 	func(decoder *xml.Decoder) {
@@ -237,8 +239,9 @@ func newBaseReaderByWorkSheetFile(cn *Connect, rc io.Reader) (*Read, error) {
 	}(decoder)
 
 	rd := &Read{
-		connecter: cn,
-		decoder:   decoder,
+		connecter:          cn,
+		decoder:            decoder,
+		decoderReadCloseer: rc,
 	}
 
 	return rd, nil
