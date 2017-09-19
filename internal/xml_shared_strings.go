@@ -11,15 +11,18 @@ func readSharedStringsXML(rc io.ReadCloser) []string {
 	decoder := xml.NewDecoder(rc)
 	tStart := false
 	slc := readSharedStringsBuff[:0]
+	lastElm := ""
 	for t, err := decoder.Token(); err == nil; t, err = decoder.Token() {
 		switch token := t.(type) {
 		case xml.StartElement:
-			if token.Name.Local == "t" {
+			if token.Name.Local == "t" && lastElm == "si" {
 				tStart = true
 				// println(token.Name.Local)
+			} else {
+				lastElm = token.Name.Local
 			}
 		case xml.EndElement:
-			if token.Name.Local == "t" {
+			if token.Name.Local == "t" && lastElm == "si" {
 				tStart = false
 				// println(token.Name.Local)
 			}
