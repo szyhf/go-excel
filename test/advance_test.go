@@ -83,8 +83,8 @@ func TestRead(t *testing.T) {
 		Sheet: advSheetName,
 		// Use the index row as title, every row before title-row will be ignore, default is 0.
 		TitleRowIndex: 1,
-		// Skip n row after title, default is 0 (not skip).
-		Skip: 2,
+		// Skip n row after title, default is 0 (not skip), empty row is not counted.
+		Skip: 1,
 		// Auto prefix to sheet name.
 		Prefix: "",
 		// Auto suffix to sheet name.
@@ -124,8 +124,8 @@ func TestReadAll(t *testing.T) {
 		Sheet: advSheetName,
 		// Use the index row as title, every row before title-row will be ignore, default is 0.
 		TitleRowIndex: 1,
-		// Skip n row after title, default is 0 (not skip).
-		Skip: 2,
+		// Skip n row after title, default is 0 (not skip), empty row is not counted.
+		Skip: 1,
 		// Auto prefix to sheet name.
 		Prefix: "",
 		// Auto suffix to sheet name.

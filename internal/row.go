@@ -11,20 +11,21 @@ import (
 	"github.com/szyhf/go-excel/internal/twenty_six"
 )
 
-type Row struct {
+type TitleRow struct {
+	titled bool
 	// map[0]A1
 	dstMap map[string]int
 
 	typeFieldMap map[reflect.Type]map[int][]*FieldConfig
 }
 
-func newRowAsMap(rd *Read) (r *Row, err error) {
+func newRowAsMap(rd *Read) (r *TitleRow, err error) {
 	defer func() {
 		if rc := recover(); rc != nil {
 			err = fmt.Errorf("%s", rc)
 		}
 	}()
-	r = &Row{
+	r = &TitleRow{
 		// srcMap: make(map[int]string),
 		dstMap: make(map[string]int),
 	}
@@ -69,7 +70,7 @@ func newRowAsMap(rd *Read) (r *Row, err error) {
 }
 
 // return: a copy of map[ColumnIndex][]*Field
-func (this *Row) MapToFields(s *Schema) (rowToFiled map[int][]*FieldConfig) {
+func (this *TitleRow) MapToFields(s *Schema) (rowToFiled map[int][]*FieldConfig) {
 	fieldsMap, ok := this.typeFieldMap[s.Type]
 	if !ok {
 		fieldsMap = make(map[int][]*FieldConfig)

@@ -123,7 +123,7 @@ type Config struct {
 	Sheet interface{}
 	// Use the index row as title, every row before title-row will be ignore, default is 0.
 	TitleRowIndex int
-	// Skip n row after title, default is 0 (not skip).
+	// Skip n row after title, default is 0 (not skip), empty row is not counted.
 	Skip int
 	// Auto prefix to sheet name.
 	Prefix string

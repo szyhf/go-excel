@@ -16,10 +16,11 @@ import (
 type Read struct {
 	connecter *Connect
 	decoder   *xml.Decoder
-	title     *Row
+	title     *TitleRow
 	schameMap map[reflect.Type]*Schema
 }
 
+// Move the cursor to next row's start.
 func (this *Read) Next() bool {
 	for t, err := this.decoder.Token(); err == nil; t, err = this.decoder.Token() {
 		switch token := t.(type) {
@@ -138,6 +139,7 @@ func (this *Read) readToValue(s *Schema, v reflect.Value) (err error) {
 			} else {
 				valStr = string(token)
 			}
+			// println("Key:", trimedColumnName, "Val:", valStr)
 
 			fields, ok := fieldsMap[columnIndex]
 			if !ok {
@@ -185,8 +187,9 @@ func newReader(cn *Connect, workSheetFileReader io.Reader, titleRowIndex, skip i
 	rd.title, err = newRowAsMap(rd)
 
 	// consider skip
-	// -1 because Next() need to put the pointer one row before first data row.
-	for i = 0; i < skip-1; i++ {
+	// Next() will called before Read() so just skip cursor to the row before first data row.
+	// fmt.Println("Start for skip")
+	for i = 0; i < skip; i++ {
 		if !rd.Next() {
 			return rd, nil
 		}
