@@ -3,42 +3,52 @@ package internal
 import (
 	"encoding/xml"
 	"io"
-)
 
-var readSharedStringsBuff = make([]string, 0)
+	"github.com/szyhf/go-convert"
+)
 
 func readSharedStringsXML(rc io.ReadCloser) []string {
 	decoder := xml.NewDecoder(rc)
 
-	siStart, tStart := false, false
-	slc := readSharedStringsBuff[:0]
+	tStart, rStart := false, false
+	var slc []string
+	siIndex := 0
 	for t, err := decoder.Token(); err == nil; t, err = decoder.Token() {
 		switch token := t.(type) {
 		case xml.StartElement:
 			switch token.Name.Local {
-			case "si":
-				siStart = true
 			case "t":
 				tStart = true
+			case "r":
+				rStart = true
+			case "sst":
+				for _, attr := range token.Attr {
+					if attr.Name.Local == "uniqueCount" {
+						slc = make([]string, convert.MustInt(attr.Value))
+					}
+				}
+			default:
+				decoder.Skip()
 			}
 		case xml.EndElement:
 			switch token.Name.Local {
 			case "si":
-				siStart = false
+				siIndex++
 			case "t":
 				tStart = false
+			case "r":
+				rStart = false
 			}
 		case xml.CharData:
-			if siStart {
-				slc = append(slc, string(token))
-			}
 			if tStart {
-				lastStr := slc[len(slc)-1]
-				slc[len(slc)-1] = lastStr + string(token)
+				if rStart {
+					str := slc[siIndex]
+					slc[siIndex] = str + string(token)
+				} else {
+					slc[siIndex] = string(token)
+				}
 			}
 		}
 	}
-	res := make([]string, len(slc))
-	copy(res, slc)
-	return res
+	return slc
 }

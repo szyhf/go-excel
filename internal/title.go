@@ -25,7 +25,6 @@ func newRowAsMap(rd *Read) (r *TitleRow, err error) {
 		}
 	}()
 	r = &TitleRow{
-		// srcMap: make(map[int]string),
 		dstMap: make(map[string]int),
 	}
 	tempCell := &xlsxC{}
