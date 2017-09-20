@@ -24,10 +24,20 @@ func readSharedStringsXML(rc io.ReadCloser) []string {
 			case "r":
 				rStart = true
 			case "sst":
+				count := 0
+				unqCount := 0
 				for _, attr := range token.Attr {
-					if attr.Name.Local == "uniqueCount" {
-						slc = make([]string, convert.MustInt(attr.Value))
+					switch attr.Name.Local {
+					case "count":
+						count = convert.MustInt(attr.Value)
+					case "uniqueCount":
+						unqCount = convert.MustInt(attr.Value)
 					}
+				}
+				if unqCount != 0 {
+					slc = make([]string, unqCount)
+				} else {
+					slc = make([]string, count)
 				}
 			default:
 				decoder.Skip()
