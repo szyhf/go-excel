@@ -30,6 +30,8 @@ func (this *FieldConfig) Scan(valStr string, fieldValue reflect.Value) error {
 			elems := strings.Split(valStr, this.Split)
 			fieldValue.Set(reflect.MakeSlice(fieldValue.Type(), 0, len(elems)))
 			err = ScanSlice(elems, fieldValue.Addr())
+		} else {
+			fieldValue.Set(reflect.MakeSlice(fieldValue.Type(), 0, 0))
 		}
 	case reflect.Ptr:
 		newValue := fieldValue

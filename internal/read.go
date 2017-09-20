@@ -90,9 +90,12 @@ func (this *Read) ReadAll(container interface{}) error {
 	}
 	elemSchema := newSchema(elemTyp)
 
+	var err error
 	for this.Next() {
 		elmVal := SliceNextElem(val.Elem())
-		err := this.readToValue(elemSchema, elmVal)
+		for err := this.readToValue(elemSchema, elmVal); err == ErrEmptyRow; err = this.readToValue(elemSchema, elmVal) {
+
+		}
 		if err != nil {
 			return err
 		}
@@ -103,6 +106,12 @@ func (this *Read) ReadAll(container interface{}) error {
 func (this *Read) readToValue(s *Schema, v reflect.Value) (err error) {
 	tempCell := &xlsxC{}
 	fieldsMap := this.title.MapToFields(s)
+	scaned := false
+	defer func() {
+		if !scaned && err == nil {
+			err = ErrEmptyRow
+		}
+	}()
 	for t, err := this.decoder.Token(); err == nil; t, err = this.decoder.Token() {
 		switch token := t.(type) {
 		case xml.StartElement:
@@ -151,7 +160,7 @@ func (this *Read) readToValue(s *Schema, v reflect.Value) (err error) {
 				valStr = string(token)
 			}
 			// println("Key:", trimedColumnName, "Val:", valStr)
-
+			scaned = true
 			for _, fieldCnf := range fields {
 				fieldValue := v.Field(fieldCnf.FieldIndex)
 				err = fieldCnf.Scan(valStr, fieldValue)
