@@ -17,6 +17,8 @@ func readSharedStringsXML(rc io.ReadCloser) []string {
 		switch token := t.(type) {
 		case xml.StartElement:
 			switch token.Name.Local {
+			case "si":
+				// don't enter default ...
 			case "t":
 				tStart = true
 			case "r":
