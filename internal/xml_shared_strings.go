@@ -9,27 +9,32 @@ var readSharedStringsBuff = make([]string, 0)
 
 func readSharedStringsXML(rc io.ReadCloser) []string {
 	decoder := xml.NewDecoder(rc)
-	tStart := false
+
+	siStart, tStart := false, false
 	slc := readSharedStringsBuff[:0]
-	lastElm := ""
 	for t, err := decoder.Token(); err == nil; t, err = decoder.Token() {
 		switch token := t.(type) {
 		case xml.StartElement:
-			if token.Name.Local == "t" && lastElm == "si" {
+			switch token.Name.Local {
+			case "si":
+				siStart = true
+			case "t":
 				tStart = true
-				// println(token.Name.Local)
-			} else {
-				lastElm = token.Name.Local
 			}
 		case xml.EndElement:
-			if token.Name.Local == "t" && lastElm == "si" {
+			switch token.Name.Local {
+			case "si":
+				siStart = false
+			case "t":
 				tStart = false
-				// println(token.Name.Local)
 			}
 		case xml.CharData:
-			if tStart {
+			if siStart {
 				slc = append(slc, string(token))
-				// println(string(token))
+			}
+			if tStart {
+				lastStr := slc[len(slc)-1]
+				slc[len(slc)-1] = lastStr + string(token)
 			}
 		}
 	}

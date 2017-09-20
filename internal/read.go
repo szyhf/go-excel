@@ -137,6 +137,12 @@ func (this *Read) readToValue(s *Schema, v reflect.Value) (err error) {
 		case xml.CharData:
 			trimedColumnName := strings.TrimRight(tempCell.R, ALL_NUMBER)
 			columnIndex := twentySix.ToDecimalism(trimedColumnName)
+			fields, ok := fieldsMap[columnIndex]
+			if !ok {
+				// Not an error, just ignore this column.
+				break
+			}
+
 			var valStr string
 			if tempCell.T == S {
 				// get string from shared
@@ -146,11 +152,6 @@ func (this *Read) readToValue(s *Schema, v reflect.Value) (err error) {
 			}
 			// println("Key:", trimedColumnName, "Val:", valStr)
 
-			fields, ok := fieldsMap[columnIndex]
-			if !ok {
-				// Not an error, just ignore the column.
-				break
-			}
 			for _, fieldCnf := range fields {
 				fieldValue := v.Field(fieldCnf.FieldIndex)
 				err = fieldCnf.Scan(valStr, fieldValue)
