@@ -1,13 +1,14 @@
 package twentySix
 
 // a 26-number-system to decoder/encoder column of excel
+// It's a very special system, don't use it as default system!!!
 
-func NumOfChar(c rune) int {
+func numOfChar(c rune) int {
 	a := c - rune('A')
 	return int(a)
 }
 
-func CharOfNum(n int) rune {
+func charOfNum(n int) rune {
 	return rune('A') + rune(n)
 }
 
@@ -15,19 +16,17 @@ func ToDecimalism(s string) int {
 	res := 0
 	ary := []rune(s)
 
-	// for i := 0; i < len(ary); i++ {
-	// 	c := ary[i]
-	// 	res = res + NumOfChar(c)*pow(26, len(ary)-i)
-	// }
-	for i, j := len(ary)-1, 1; i >= 0; i, j = i-1, j*26 {
+	for i, j := len(ary)-2, 26; i >= 0; i, j = i-1, j*26 {
 		c := ary[i]
-		res = res + NumOfChar(c)*j
+		// fmt.Printf("res(%d)=res(%d)+(Num(%d)+1)*%d, c=%s, i=%d, j=%d\n", res+(NumOfChar(c)+1)*j, res, NumOfChar(c), j, string(c), i, j)
+		res = res + (numOfChar(c)+1)*j
 	}
 
-	return res
+	return res + numOfChar(ary[len(ary)-1])
 }
 
-func ToTwentySixString(n int) string {
+func toTwentySixString(n int) string {
+	panic("it is a bug!!! don't use.")
 	s := ""
 	if n == 0 {
 		return "A"
@@ -37,7 +36,7 @@ func ToTwentySixString(n int) string {
 		if m == 0 {
 			m = 26
 		}
-		s = string(CharOfNum(m)) + s
+		s = string(charOfNum(m)) + s
 		n = (n - m) / 26
 	}
 	return s
