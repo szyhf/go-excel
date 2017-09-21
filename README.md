@@ -3,6 +3,8 @@
 Expect to create a reader library to read relate-db-like excel easily.
 Just like read a config.
 
+> This library can read all xlsx file correctly from our project now.
+
 ```shell
 go get github.com/szyhf/go-excel
 ```
@@ -193,6 +195,6 @@ Split a string and convert them to a slice, it won't work if not set.
 
 于是写了这个简化库
 
-这个库的工作参考了[tealeg/xlsx](github.com/tealeg/xlsx)的部分实现和读取逻辑。
+这个库的工作参考了[tealeg/xlsx](https://github.com/tealeg/xlsx)的部分实现和读取逻辑。
 
-感谢[tealeg](github.com/tealeg)
+感谢[tealeg](https://github.com/tealeg)
