@@ -2,7 +2,6 @@ package internal
 
 import (
 	"encoding/xml"
-	"errors"
 	"fmt"
 	"io"
 	"reflect"
@@ -36,6 +35,8 @@ func (this *Read) Next() bool {
 }
 
 // Read current row into an object by its pointer
+// return: the last row might be a row with not data,
+//         in this case will return io.EOF
 func (this *Read) Read(i interface{}) error {
 	t := reflect.TypeOf(i)
 	switch t.Kind() {
@@ -55,7 +56,11 @@ func (this *Read) Read(i interface{}) error {
 	}
 	v = v.Elem()
 
-	return this.readToValue(s, v)
+	var err error
+	for err = ErrEmptyRow; err == ErrEmptyRow; {
+		err = this.readToValue(s, v)
+	}
+	return err
 }
 
 func (this *Read) Close() error {
@@ -91,13 +96,19 @@ func (this *Read) ReadAll(container interface{}) error {
 	elemSchema := newSchema(elemTyp)
 
 	var err error
+	slcVal := val.Elem()
 	for this.Next() {
-		elmVal := SliceNextElem(val.Elem())
-		for err := this.readToValue(elemSchema, elmVal); err == ErrEmptyRow; err = this.readToValue(elemSchema, elmVal) {
-
+		elmVal := SliceNextElem(slcVal)
+		for err = ErrEmptyRow; err == ErrEmptyRow; {
+			err = this.readToValue(elemSchema, elmVal)
 		}
 		if err != nil {
-			return err
+			// remove the last row.
+			slcVal.SetLen(slcVal.Len() - 1)
+			if err != io.EOF {
+				// EOF is normal.
+				return err
+			}
 		}
 	}
 	return nil
@@ -112,7 +123,7 @@ func (this *Read) readToValue(s *Schema, v reflect.Value) (err error) {
 			err = ErrEmptyRow
 		}
 	}()
-	for t, err := this.decoder.Token(); err == nil; t, err = this.decoder.Token() {
+	for t, e := this.decoder.Token(); e == nil; t, e = this.decoder.Token() {
 		switch token := t.(type) {
 		case xml.StartElement:
 			if token.Name.Local == "c" {
@@ -177,7 +188,7 @@ func (this *Read) readToValue(s *Schema, v reflect.Value) (err error) {
 	if err != nil {
 		return err
 	}
-	return errors.New("No row")
+	return io.EOF
 }
 
 func (this *Read) getSchame(t reflect.Type) *Schema {
