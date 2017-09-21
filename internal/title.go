@@ -79,7 +79,8 @@ func (this *TitleRow) MapToFields(s *Schema) (rowToFiled map[int][]*FieldConfig)
 				cloIndex = i
 			} else {
 				// Use 26-number-system to find
-				cloIndex = twentySix.ToDecimalism(field.ColumnName)
+				// cloIndex = twentySix.ToDecimalism(field.ColumnName)
+				panic(fmt.Sprintf("go-excel: column name = \"%s\" is not exist.", field.ColumnName))
 			}
 
 			if fAry, ok := fieldsMap[cloIndex]; !ok {
