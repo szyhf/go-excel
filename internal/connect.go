@@ -21,6 +21,7 @@ type Connect struct {
 	// "xl/worksheets/sheet*.xml" map[sheet*]*zip.File
 	worksheetIDFileMap   map[string]*zip.File
 	worksheetNameFileMap map[string]*zip.File
+	worksheetNameList    []string
 	zipReader            *zip.ReadCloser
 }
 
@@ -104,6 +105,18 @@ func (this *Connect) MustReaderByConfig(config *Config) Reader {
 		panic(err)
 	}
 	return rd
+}
+
+func (this *Connect) GetSheetNames() []string {
+	if len(this.worksheetNameFileMap) != len(this.worksheetNameList) {
+		this.worksheetNameList = make([]string, 0, len(this.worksheetNameFileMap))
+		for name := range this.worksheetNameFileMap {
+			this.worksheetNameList = append(this.worksheetNameList, name)
+		}
+	}
+	dst := make([]string, len(this.worksheetNameList))
+	copy(dst, this.worksheetNameList)
+	return dst
 }
 
 func (this *Connect) getSharedString(id int) string {

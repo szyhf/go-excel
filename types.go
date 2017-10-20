@@ -12,6 +12,10 @@ type Connecter interface {
 	Open(filePath string) error
 	// Close file reader
 	Close() error
+
+	// Get all sheets name
+	GetSheetNames() []string
+
 	// Generate an new reader of a sheet
 	// sheetNamer: if sheetNamer is string, will use sheet as sheet name.
 	//             if sheetNamer is a object implements `GetXLSXSheetName()string`, the return value will be used.
