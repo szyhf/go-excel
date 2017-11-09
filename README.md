@@ -158,6 +158,10 @@ Set default value when no value is filled in excel cell, by default is 0 or "".
 
 Split a string and convert them to a slice, it won't work if not set.
 
+### nil
+
+Will not skip scan value in the cell equals to this 'nil value'
+
 ## RoadMap | 开发计划
 
 + Read xlsx file and got the expect xml. √

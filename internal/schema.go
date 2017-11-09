@@ -11,6 +11,7 @@ const tagSplit = ";"
 const columnTag = "column"
 const splitTag = "split"
 const defaultTag = "default"
+const nilTag = "nil"
 const ignoreTag = "-"
 
 type FieldConfig struct {
@@ -19,9 +20,15 @@ type FieldConfig struct {
 	ColumnName   string
 	DefaultValue string
 	Split        string
+	// if cell.value == NilValue, will skip this scan
+	NilValue string
 }
 
 func (this *FieldConfig) Scan(valStr string, fieldValue reflect.Value) error {
+	if this.NilValue == valStr {
+		// fmt.Printf("Got nil,skip")
+		return nil
+	}
 	var err error
 	switch fieldValue.Kind() {
 	case reflect.Slice, reflect.Array:
@@ -123,5 +130,7 @@ func fillField(c *FieldConfig, k, v string) {
 		c.DefaultValue = v
 	case splitTag:
 		c.Split = v
+	case nilTag:
+		c.NilValue = v
 	}
 }

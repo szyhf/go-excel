@@ -31,7 +31,7 @@ var expectAdvanceList = []Advance{
 	},
 	Advance{
 		ID:      3,
-		Name:    "Ben",
+		Name:    "",
 		NamePtr: strPtr("Ben"),
 		Age:     180, //  using default
 		Slice:   []int{3, 4, 5, 6},
@@ -54,8 +54,8 @@ var expectAdvanceList = []Advance{
 type Advance struct {
 	// use field name as default column name
 	ID int
-	// column means to map the column name
-	Name string `xlsx:"column(NameOf)"`
+	// column means to map the column name, and skip cell that value equal to "Ben"
+	Name string `xlsx:"column(NameOf);nil(Ben)"`
 	// you can map a column into more than one field
 	NamePtr *string `xlsx:"column(NameOf)"`
 	// omit `column` if only want to map to column name, it's equal to `column(AgeOf)`

@@ -1,0 +1,6 @@
+hash: c1f3c61903265fec947ce550e9e23390a6503abfb3efe09435d5a43cc5c64b9b
+updated: 2017-09-26T16:20:54.962731764+08:00
+imports:
+- name: github.com/szyhf/go-convert
+  version: ec578202a465308f7f8f8daff1b998a9247e8de6
+testImports: []
