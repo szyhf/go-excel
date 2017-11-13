@@ -17,20 +17,20 @@ func readSharedStringsXML(rc io.ReadCloser) []string {
 		switch token := t.(type) {
 		case xml.StartElement:
 			switch token.Name.Local {
-			case "si":
+			case SI:
 				// don't enter default ...
-			case "t":
+			case T:
 				tStart = true
-			case "r":
+			case R:
 				rStart = true
-			case "sst":
+			case SST:
 				count := 0
 				unqCount := 0
 				for _, attr := range token.Attr {
 					switch attr.Name.Local {
-					case "count":
+					case COUNT:
 						count = convert.MustInt(attr.Value)
-					case "uniqueCount":
+					case UNIQUE_COUNT:
 						unqCount = convert.MustInt(attr.Value)
 					}
 				}
@@ -44,11 +44,11 @@ func readSharedStringsXML(rc io.ReadCloser) []string {
 			}
 		case xml.EndElement:
 			switch token.Name.Local {
-			case "si":
+			case SI:
 				siIndex++
-			case "t":
+			case T:
 				tStart = false
-			case "r":
+			case R:
 				rStart = false
 			}
 		case xml.CharData:

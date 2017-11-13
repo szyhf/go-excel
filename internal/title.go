@@ -2,7 +2,6 @@ package internal
 
 import (
 	"encoding/xml"
-	"errors"
 	"fmt"
 	"reflect"
 	"strings"
@@ -31,14 +30,14 @@ func newRowAsMap(rd *Read) (r *TitleRow, err error) {
 	for t, err := rd.decoder.Token(); err == nil; t, err = rd.decoder.Token() {
 		switch token := t.(type) {
 		case xml.StartElement:
-			if token.Name.Local == "c" {
+			if token.Name.Local == C {
 				tempCell.R = ""
 				tempCell.T = ""
 				for _, a := range token.Attr {
 					switch a.Name.Local {
-					case "r":
+					case R:
 						tempCell.R = a.Value
-					case "t":
+					case T:
 						tempCell.T = a.Value
 					}
 				}
@@ -64,7 +63,7 @@ func newRowAsMap(rd *Read) (r *TitleRow, err error) {
 		}
 	}
 
-	return nil, errors.New("No row")
+	return nil, ErrNoRow
 }
 
 // return: a copy of map[ColumnIndex][]*FieldConfig

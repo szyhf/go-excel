@@ -5,14 +5,16 @@ import (
 	"strings"
 )
 
-const tagIdentify = "xlsx"
-const tagSplit = ";"
+const (
+	tagIdentify = "xlsx"
+	tagSplit    = ";"
 
-const columnTag = "column"
-const splitTag = "split"
-const defaultTag = "default"
-const nilTag = "nil"
-const ignoreTag = "-"
+	columnTag  = "column"
+	splitTag   = "split"
+	defaultTag = "default"
+	nilTag     = "nil"
+	ignoreTag  = "-"
+)
 
 type FieldConfig struct {
 	FieldIndex int

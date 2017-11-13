@@ -13,5 +13,15 @@ const (
 	ROW = "row"
 
 	ALL_NUMBER = "0123456789"
-	S          = "s"
+
+	// xml
+	S            = "s"
+	SI           = "si"
+	T            = "t"
+	R            = "r"
+	SST          = "sst"
+	COUNT        = "count"
+	UNIQUE_COUNT = "uniqueCount"
+	C            = "c"
+	R_ID         = "rId"
 )

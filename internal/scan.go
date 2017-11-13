@@ -2,7 +2,6 @@ package internal
 
 import (
 	"encoding"
-	"errors"
 	"fmt"
 	"reflect"
 
@@ -23,7 +22,7 @@ func Scan(s string, ptr interface{}) error {
 	var err error
 	switch p := ptr.(type) {
 	case nil:
-		return errors.New("Scan(nil).")
+		return ErrScanNil
 	case *string:
 		*p = s
 	case *[]byte:

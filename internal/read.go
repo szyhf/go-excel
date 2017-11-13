@@ -126,14 +126,14 @@ func (this *Read) readToValue(s *Schema, v reflect.Value) (err error) {
 	for t, e := this.decoder.Token(); e == nil; t, e = this.decoder.Token() {
 		switch token := t.(type) {
 		case xml.StartElement:
-			if token.Name.Local == "c" {
+			if token.Name.Local == C {
 				tempCell.R = ""
 				tempCell.T = ""
 				for _, a := range token.Attr {
 					switch a.Name.Local {
-					case "r":
+					case R:
 						tempCell.R = a.Value
-					case "t":
+					case T:
 						tempCell.T = a.Value
 					}
 				}
