@@ -116,7 +116,10 @@ func (this *Read) ReadAll(container interface{}) error {
 
 func (this *Read) readToValue(s *Schema, v reflect.Value) (err error) {
 	tempCell := &xlsxC{}
-	fieldsMap := this.title.MapToFields(s)
+	fieldsMap, err := this.title.MapToFields(s)
+	if err != nil {
+		return err
+	}
 	scaned := false
 	defer func() {
 		if !scaned && err == nil {

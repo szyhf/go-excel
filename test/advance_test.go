@@ -55,18 +55,20 @@ type Advance struct {
 	// use field name as default column name
 	ID int
 	// column means to map the column name, and skip cell that value equal to "Ben"
-	Name string `xlsx:"column(NameOf);nil(Ben)"`
+	Name string `xlsx:"column(NameOf);nil(Ben);req();"`
 	// you can map a column into more than one field
-	NamePtr *string `xlsx:"column(NameOf)"`
+	NamePtr *string `xlsx:"column(NameOf);req();"`
 	// omit `column` if only want to map to column name, it's equal to `column(AgeOf)`
 	// use 180 as default if cell is empty.
-	Age int `xlsx:"column(AgeOf);default(180)"`
+	Age int `xlsx:"column(AgeOf);default(180);req();"`
 	// split means to split the string into slice by the `|`
-	Slice []int `xlsx:"split(|)"`
+	Slice []int `xlsx:"split(|);req();"`
 	// use default also can marshal to struct
-	Temp *Temp `xlsx:"column(UnmarshalString);default({\"Foo\":\"Default\"})"`
+	Temp *Temp `xlsx:"column(UnmarshalString);default({\"Foo\":\"Default\"});req();"`
 	// use '-' to ignore.
 	WantIgnored string `xlsx:"-"`
+	// By default, required tag req is not set
+	NotRequired string
 }
 
 func TestRead(t *testing.T) {

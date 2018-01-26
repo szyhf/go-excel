@@ -14,6 +14,7 @@ const (
 	defaultTag = "default"
 	nilTag     = "nil"
 	ignoreTag  = "-"
+	reqTag     = "req"
 )
 
 type FieldConfig struct {
@@ -24,6 +25,8 @@ type FieldConfig struct {
 	Split        string
 	// if cell.value == NilValue, will skip this scan
 	NilValue string
+	// panic if reuqired this column but not set
+	IsRequired bool
 }
 
 func (this *FieldConfig) Scan(valStr string, fieldValue reflect.Value) error {
@@ -134,5 +137,7 @@ func fillField(c *FieldConfig, k, v string) {
 		c.Split = v
 	case nilTag:
 		c.NilValue = v
+	case reqTag:
+		c.IsRequired = true
 	}
 }

@@ -162,6 +162,10 @@ Split a string and convert them to a slice, it won't work if not set.
 
 Will not skip scan value in the cell equals to this 'nil value'
 
+### req
+
+Will return error if clomun title not exist in excel.
+
 ## RoadMap | 开发计划
 
 + Read xlsx file and got the expect xml. √

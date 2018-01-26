@@ -67,7 +67,7 @@ func newRowAsMap(rd *Read) (r *TitleRow, err error) {
 }
 
 // return: a copy of map[ColumnIndex][]*FieldConfig
-func (this *TitleRow) MapToFields(s *Schema) (rowToFiled map[int][]*FieldConfig) {
+func (this *TitleRow) MapToFields(s *Schema) (rowToFiled map[int][]*FieldConfig, err error) {
 	fieldsMap, ok := this.typeFieldMap[s.Type]
 	if !ok {
 		fieldsMap = make(map[int][]*FieldConfig)
@@ -76,10 +76,13 @@ func (this *TitleRow) MapToFields(s *Schema) (rowToFiled map[int][]*FieldConfig)
 			// Use ColumnName to find index
 			if i, ok := this.dstMap[field.ColumnName]; ok {
 				cloIndex = i
-			} else {
+			} else if field.IsRequired {
 				// Use 26-number-system to find
 				// cloIndex = twentySix.ToDecimalism(field.ColumnName)
-				panic(fmt.Sprintf("go-excel: column name = \"%s\" is not exist.", field.ColumnName))
+				return nil, fmt.Errorf("go-excel: column name = \"%s\" is not exist.", field.ColumnName)
+			} else {
+				// continue if is not required.
+				continue
 			}
 
 			if fAry, ok := fieldsMap[cloIndex]; !ok {
@@ -94,5 +97,5 @@ func (this *TitleRow) MapToFields(s *Schema) (rowToFiled map[int][]*FieldConfig)
 	for k, v := range fieldsMap {
 		copyMap[k] = v
 	}
-	return copyMap
+	return copyMap, nil
 }
