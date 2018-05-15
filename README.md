@@ -1,4 +1,6 @@
 # Intro | 简介
+[![Go Report Card](https://goreportcard.com/badge/github.com/szyhf/go-excel)](https://goreportcard.com/report/github.com/szyhf/go-excel)
+![cover.run go](https://cover.run/go/github.com/szyhf/go-excel.svg?tag=golang-1.10)
 
 Expect to create a reader library to read relate-db-like excel easily.
 Just like read a config.
