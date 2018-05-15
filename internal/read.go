@@ -26,7 +26,7 @@ func (this *Read) Next() bool {
 		switch token := t.(type) {
 		case xml.StartElement:
 			switch token.Name.Local {
-			case ROW:
+			case _ROW:
 				return true
 			}
 		}
@@ -142,7 +142,7 @@ func (this *Read) readToValue(s *Schema, v reflect.Value) (err error) {
 				}
 			}
 		case xml.EndElement:
-			if token.Name.Local == ROW {
+			if token.Name.Local == _ROW {
 				// fill default value to column not read.
 				for _, notFilledFields := range fieldsMap {
 					for _, fieldCnf := range notFilledFields {
@@ -158,7 +158,7 @@ func (this *Read) readToValue(s *Schema, v reflect.Value) (err error) {
 				return err
 			}
 		case xml.CharData:
-			trimedColumnName := strings.TrimRight(tempCell.R, ALL_NUMBER)
+			trimedColumnName := strings.TrimRight(tempCell.R, _ALL_NUMBER)
 			columnIndex := twentySix.ToDecimalism(trimedColumnName)
 			fields, ok := fieldsMap[columnIndex]
 			if !ok {
@@ -177,7 +177,7 @@ func (this *Read) readToValue(s *Schema, v reflect.Value) (err error) {
 			scaned = true
 			for _, fieldCnf := range fields {
 				fieldValue := v.Field(fieldCnf.FieldIndex)
-				err = fieldCnf.Scan(valStr, fieldValue)
+				err = fieldCnf.scan(valStr, fieldValue)
 				if err != nil && len(valStr) > 0 {
 					return err
 				}
@@ -253,7 +253,7 @@ func newBaseReaderByWorkSheetFile(cn *Connect, rc io.ReadCloser) (*Read, error) 
 			switch token := t.(type) {
 			case xml.StartElement:
 				switch token.Name.Local {
-				case SHEET_DATA:
+				case _SHEET_DATA:
 					return
 				default:
 					decoder.Skip()

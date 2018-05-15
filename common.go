@@ -4,6 +4,7 @@ import (
 	"github.com/szyhf/go-excel/internal"
 )
 
+// Make a new connecter to connect to a exist xlsx file.
 func NewConnecter() Connecter {
 	return internal.NewConnect()
 }

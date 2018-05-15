@@ -10,15 +10,15 @@ import (
 
 // ref: gopkg.in/redis.v5
 
-func ScanByDefault(s string, ptr interface{}, def string) error {
-	err := Scan(s, ptr)
+func scanByDefault(s string, ptr interface{}, def string) error {
+	err := scan(s, ptr)
 	if err != nil {
-		err = Scan(def, ptr)
+		err = scan(def, ptr)
 	}
 	return err
 }
 
-func Scan(s string, ptr interface{}) error {
+func scan(s string, ptr interface{}) error {
 	var err error
 	switch p := ptr.(type) {
 	case nil:
@@ -79,7 +79,7 @@ func ScanSlice(data []string, sliceValue reflect.Value) error {
 
 	for i, s := range data {
 		elem := SliceNextElem(sliceValue)
-		if err := Scan(s, elem.Addr().Interface()); err != nil {
+		if err := scan(s, elem.Addr().Interface()); err != nil {
 			return fmt.Errorf("ScanSlice(index=%d value=%q) failed: %s", i, s, err)
 		}
 	}

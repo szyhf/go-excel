@@ -26,20 +26,20 @@ func ToDecimalism(s string) int {
 }
 
 func toTwentySixString(n int) string {
-	panic("it is a bug!!! don't use.")
-	s := ""
-	if n == 0 {
-		return "A"
-	}
-	for n > 0 {
-		m := n % 26
-		if m == 0 {
-			m = 26
-		}
-		s = string(charOfNum(m)) + s
-		n = (n - m) / 26
-	}
-	return s
+	panic("it's not needed.")
+	// s := ""
+	// if n == 0 {
+	// 	return "A"
+	// }
+	// for n > 0 {
+	// 	m := n % 26
+	// 	if m == 0 {
+	// 		m = 26
+	// 	}
+	// 	s = string(charOfNum(m)) + s
+	// 	n = (n - m) / 26
+	// }
+	// return s
 }
 
 func pow(x, y int) int {

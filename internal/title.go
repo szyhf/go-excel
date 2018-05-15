@@ -14,7 +14,7 @@ type TitleRow struct {
 	// map[0]A1
 	dstMap map[string]int
 
-	typeFieldMap map[reflect.Type]map[int][]*FieldConfig
+	typeFieldMap map[reflect.Type]map[int][]*fieldConfig
 }
 
 func newRowAsMap(rd *Read) (r *TitleRow, err error) {
@@ -43,13 +43,13 @@ func newRowAsMap(rd *Read) (r *TitleRow, err error) {
 				}
 			}
 		case xml.EndElement:
-			if token.Name.Local == ROW {
+			if token.Name.Local == _ROW {
 				// 结束当前行
-				r.typeFieldMap = make(map[reflect.Type]map[int][]*FieldConfig)
+				r.typeFieldMap = make(map[reflect.Type]map[int][]*fieldConfig)
 				return r, nil
 			}
 		case xml.CharData:
-			trimedColumnName := strings.TrimRight(tempCell.R, ALL_NUMBER)
+			trimedColumnName := strings.TrimRight(tempCell.R, _ALL_NUMBER)
 			columnIndex := twentySix.ToDecimalism(trimedColumnName)
 			var str string
 			if tempCell.T == S {
@@ -66,11 +66,11 @@ func newRowAsMap(rd *Read) (r *TitleRow, err error) {
 	return nil, ErrNoRow
 }
 
-// return: a copy of map[ColumnIndex][]*FieldConfig
-func (this *TitleRow) MapToFields(s *Schema) (rowToFiled map[int][]*FieldConfig, err error) {
+// return: a copy of map[ColumnIndex][]*fieldConfig
+func (this *TitleRow) MapToFields(s *Schema) (rowToFiled map[int][]*fieldConfig, err error) {
 	fieldsMap, ok := this.typeFieldMap[s.Type]
 	if !ok {
-		fieldsMap = make(map[int][]*FieldConfig)
+		fieldsMap = make(map[int][]*fieldConfig)
 		for _, field := range s.Fields {
 			var cloIndex int
 			// Use ColumnName to find index
@@ -86,14 +86,14 @@ func (this *TitleRow) MapToFields(s *Schema) (rowToFiled map[int][]*FieldConfig,
 			}
 
 			if fAry, ok := fieldsMap[cloIndex]; !ok {
-				fieldsMap[cloIndex] = []*FieldConfig{field}
+				fieldsMap[cloIndex] = []*fieldConfig{field}
 			} else {
 				fieldsMap[cloIndex] = append(fAry, field)
 			}
 		}
 		this.typeFieldMap[s.Type] = fieldsMap
 	}
-	copyMap := make(map[int][]*FieldConfig)
+	copyMap := make(map[int][]*fieldConfig)
 	for k, v := range fieldsMap {
 		copyMap[k] = v
 	}

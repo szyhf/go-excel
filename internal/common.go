@@ -1,5 +1,6 @@
 package internal
 
+// Config of connecter
 type Config struct {
 	// sheet: if sheet is string, will use sheet as sheet name.
 	//        if sheet is a object implements `GetXLSXSheetName()string`, the return value will be used.

@@ -128,15 +128,15 @@ func (this *Connect) init() error {
 	this.worksheetIDFileMap = make(map[string]*zip.File)
 	for _, f := range this.zipReader.File {
 		switch f.Name {
-		case SHARED_STRING:
+		case _SHARED_STRING:
 			this.sharedStringsFile = f
-		case WORK_BOOK:
+		case _WORK_BOOK:
 			this.workbookFile = f
 		default:
-			if strings.HasPrefix(f.Name, WORK_SHEETS_PREFIX) {
+			if strings.HasPrefix(f.Name, _WORK_SHEETS_PREFIX) {
 				// Trim left of prefix
 				// Trim right of ".xml" as len = 4
-				worksheetIDName := f.Name[len(WORK_SHEETS_PREFIX) : len(f.Name)-4]
+				worksheetIDName := f.Name[len(_WORK_SHEETS_PREFIX) : len(f.Name)-4]
 				// println("WorksheetName:", worksheetName)
 				this.worksheetIDFileMap[worksheetIDName] = f
 			}

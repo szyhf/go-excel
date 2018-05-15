@@ -11,5 +11,5 @@ var (
 	ErrInvalidConatiner      = errors.New("container should be ptr to slice.")
 	ErrEmptyRow              = errors.New("empty row.")
 	ErrNoRow                 = errors.New("no row.")
-	ErrScanNil               = errors.New("Scan(nil).")
+	ErrScanNil               = errors.New("scan(nil).")
 )

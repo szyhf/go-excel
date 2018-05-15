@@ -4,9 +4,13 @@ import (
 	"github.com/szyhf/go-excel/internal"
 )
 
+// External of excel reader
 type Reader = internal.Reader
+
+// External of excel config
 type Config = internal.Config
 
+// An Connecter of excel file
 type Connecter interface {
 	// Open a file of excel
 	Open(filePath string) error

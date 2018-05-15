@@ -17,7 +17,7 @@ const (
 	reqTag     = "req"
 )
 
-type FieldConfig struct {
+type fieldConfig struct {
 	FieldIndex int
 	// use ptr in order to know if configed.
 	ColumnName   string
@@ -29,7 +29,7 @@ type FieldConfig struct {
 	IsRequired bool
 }
 
-func (this *FieldConfig) Scan(valStr string, fieldValue reflect.Value) error {
+func (this *fieldConfig) scan(valStr string, fieldValue reflect.Value) error {
 	if this.NilValue == valStr {
 		// fmt.Printf("Got nil,skip")
 		return nil
@@ -51,15 +51,15 @@ func (this *FieldConfig) Scan(valStr string, fieldValue reflect.Value) error {
 				newValue = newValue.Elem()
 			}
 		}
-		err = Scan(valStr, newValue.Addr().Interface())
+		err = scan(valStr, newValue.Addr().Interface())
 	default:
-		err = Scan(valStr, fieldValue.Addr().Interface())
+		err = scan(valStr, fieldValue.Addr().Interface())
 	}
 	return err
 }
 
-func (this *FieldConfig) ScanDefault(fieldValue reflect.Value) error {
-	err := this.Scan(this.DefaultValue, fieldValue)
+func (this *fieldConfig) ScanDefault(fieldValue reflect.Value) error {
+	err := this.scan(this.DefaultValue, fieldValue)
 	if err != nil && len(this.DefaultValue) > 0 {
 		return err
 	}
@@ -69,12 +69,12 @@ func (this *FieldConfig) ScanDefault(fieldValue reflect.Value) error {
 type Schema struct {
 	Type reflect.Type
 	// map[FieldIndex]*Field
-	Fields []*FieldConfig
+	Fields []*fieldConfig
 }
 
 func newSchema(t reflect.Type) *Schema {
 	s := &Schema{
-		Fields: make([]*FieldConfig, 0, t.NumField()),
+		Fields: make([]*fieldConfig, 0, t.NumField()),
 	}
 	for i := 0; i < t.NumField(); i++ {
 		field := t.Field(i)
@@ -89,7 +89,7 @@ func newSchema(t reflect.Type) *Schema {
 			}
 		} else {
 			// use default config
-			fieldCnf := &FieldConfig{
+			fieldCnf := &fieldConfig{
 				FieldIndex: i,
 				ColumnName: field.Name,
 			}
@@ -100,8 +100,8 @@ func newSchema(t reflect.Type) *Schema {
 	return s
 }
 
-func praseTagValue(v string) *FieldConfig {
-	c := &FieldConfig{}
+func praseTagValue(v string) *fieldConfig {
+	c := &fieldConfig{}
 	params := strings.Split(v, tagSplit)
 
 	for _, param := range params {
@@ -127,7 +127,7 @@ func getTagParam(v string) (key, value string) {
 	}
 }
 
-func fillField(c *FieldConfig, k, v string) {
+func fillField(c *fieldConfig, k, v string) {
 	switch k {
 	case columnTag:
 		c.ColumnName = v
