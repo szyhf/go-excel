@@ -1,10 +1,10 @@
-package utils
+package excel
 
 import (
 	"reflect"
 )
 
-func ParseSheetName(i interface{}) string {
+func parseSheetName(i interface{}) string {
 	switch s := i.(type) {
 	case string:
 		return s
@@ -21,7 +21,7 @@ func ParseSheetName(i interface{}) string {
 			if typ.Kind() == reflect.Ptr {
 				typ = typ.Elem()
 			}
-			return ParseSheetName(reflect.New(typ).Elem().Interface())
+			return parseSheetName(reflect.New(typ).Elem().Interface())
 		default:
 			return typ.Name()
 		}

@@ -1,4 +1,4 @@
-package internal
+package excel
 
 import (
 	"encoding/xml"
@@ -7,26 +7,27 @@ import (
 	"reflect"
 	"strings"
 
-	convert "github.com/szyhf/go-convert"
-
 	"github.com/szyhf/go-excel/internal/twenty_six"
+
+	convert "github.com/szyhf/go-convert"
 )
 
-type Read struct {
-	connecter          *Connect
+// read is default implement of reader
+type read struct {
+	connecter          *connect
 	decoder            *xml.Decoder
 	decoderReadCloseer io.ReadCloser
-	title              *TitleRow
-	schameMap          map[reflect.Type]*Schema
+	title              *titleRow
+	schameMap          map[reflect.Type]*schema
 }
 
 // Move the cursor to next row's start.
-func (this *Read) Next() bool {
-	for t, err := this.decoder.Token(); err == nil; t, err = this.decoder.Token() {
+func (rd *read) Next() bool {
+	for t, err := rd.decoder.Token(); err == nil; t, err = rd.decoder.Token() {
 		switch token := t.(type) {
 		case xml.StartElement:
 			switch token.Name.Local {
-			case _ROW:
+			case _RowPrefix:
 				return true
 			}
 		}
@@ -36,20 +37,20 @@ func (this *Read) Next() bool {
 
 // Read current row into an object by its pointer
 // return: the last row might be a row with not data,
-//         in this case will return io.EOF
-func (this *Read) Read(i interface{}) error {
+//         in rd case will return io.EOF
+func (rd *read) Read(i interface{}) error {
 	t := reflect.TypeOf(i)
 	switch t.Kind() {
 	case reflect.Ptr:
 		t = t.Elem()
 		if t.Kind() != reflect.Struct {
-			return fmt.Errorf("%T should be pointer to struct.", i)
+			return fmt.Errorf("%T should be pointer to struct", i)
 		}
 	default:
-		return fmt.Errorf("%T should be pointer to struct.", i)
+		return fmt.Errorf("%T should be pointer to struct", i)
 	}
 
-	s := this.getSchame(t)
+	s := rd.getSchame(t)
 	v := reflect.ValueOf(i)
 	if v.IsNil() {
 		v.Set(reflect.New(t))
@@ -58,27 +59,27 @@ func (this *Read) Read(i interface{}) error {
 
 	var err error
 	for err = ErrEmptyRow; err == ErrEmptyRow; {
-		err = this.readToValue(s, v)
+		err = rd.readToValue(s, v)
 	}
 	return err
 }
 
-func (this *Read) Close() error {
-	if this.decoder != nil {
-		this.decoder = nil
+func (rd *read) Close() error {
+	if rd.decoder != nil {
+		rd.decoder = nil
 	}
-	if this.decoderReadCloseer != nil {
-		this.decoderReadCloseer.Close()
-		this.decoderReadCloseer = nil
+	if rd.decoderReadCloseer != nil {
+		rd.decoderReadCloseer.Close()
+		rd.decoderReadCloseer = nil
 	}
-	this.connecter = nil
-	this.title = nil
-	this.schameMap = nil
+	rd.connecter = nil
+	rd.title = nil
+	rd.schameMap = nil
 	return nil
 }
 
 // Read all rows
-func (this *Read) ReadAll(container interface{}) error {
+func (rd *read) ReadAll(container interface{}) error {
 	val := reflect.ValueOf(container)
 	typ := reflect.Indirect(val).Type()
 
@@ -97,10 +98,10 @@ func (this *Read) ReadAll(container interface{}) error {
 
 	var err error
 	slcVal := val.Elem()
-	for this.Next() {
-		elmVal := SliceNextElem(slcVal)
+	for rd.Next() {
+		elmVal := sliceNextElem(slcVal)
 		for err = ErrEmptyRow; err == ErrEmptyRow; {
-			err = this.readToValue(elemSchema, elmVal)
+			err = rd.readToValue(elemSchema, elmVal)
 		}
 		if err != nil {
 			// remove the last row.
@@ -114,9 +115,9 @@ func (this *Read) ReadAll(container interface{}) error {
 	return nil
 }
 
-func (this *Read) readToValue(s *Schema, v reflect.Value) (err error) {
+func (rd *read) readToValue(s *schema, v reflect.Value) (err error) {
 	tempCell := &xlsxC{}
-	fieldsMap, err := this.title.MapToFields(s)
+	fieldsMap, err := rd.title.MapToFields(s)
 	if err != nil {
 		return err
 	}
@@ -126,23 +127,23 @@ func (this *Read) readToValue(s *Schema, v reflect.Value) (err error) {
 			err = ErrEmptyRow
 		}
 	}()
-	for t, e := this.decoder.Token(); e == nil; t, e = this.decoder.Token() {
+	for t, e := rd.decoder.Token(); e == nil; t, e = rd.decoder.Token() {
 		switch token := t.(type) {
 		case xml.StartElement:
-			if token.Name.Local == C {
+			if token.Name.Local == _C {
 				tempCell.R = ""
 				tempCell.T = ""
 				for _, a := range token.Attr {
 					switch a.Name.Local {
-					case R:
+					case _R:
 						tempCell.R = a.Value
-					case T:
+					case _T:
 						tempCell.T = a.Value
 					}
 				}
 			}
 		case xml.EndElement:
-			if token.Name.Local == _ROW {
+			if token.Name.Local == _RowPrefix {
 				// fill default value to column not read.
 				for _, notFilledFields := range fieldsMap {
 					for _, fieldCnf := range notFilledFields {
@@ -158,18 +159,18 @@ func (this *Read) readToValue(s *Schema, v reflect.Value) (err error) {
 				return err
 			}
 		case xml.CharData:
-			trimedColumnName := strings.TrimRight(tempCell.R, _ALL_NUMBER)
-			columnIndex := twentySix.ToDecimalism(trimedColumnName)
+			trimedColumnName := strings.TrimRight(tempCell.R, _AllNumber)
+			columnIndex := twentysix.ToDecimalism(trimedColumnName)
 			fields, ok := fieldsMap[columnIndex]
 			if !ok {
-				// Not an error, just ignore this column.
+				// Not an error, just ignore rd column.
 				break
 			}
 
 			var valStr string
-			if tempCell.T == S {
+			if tempCell.T == _S {
 				// get string from shared
-				valStr = this.connecter.getSharedString(convert.MustInt(string(token)))
+				valStr = rd.connecter.getSharedString(convert.MustInt(string(token)))
 			} else {
 				valStr = string(token)
 			}
@@ -194,16 +195,16 @@ func (this *Read) readToValue(s *Schema, v reflect.Value) (err error) {
 	return io.EOF
 }
 
-func (this *Read) getSchame(t reflect.Type) *Schema {
-	s, ok := this.schameMap[t]
+func (rd *read) getSchame(t reflect.Type) *schema {
+	s, ok := rd.schameMap[t]
 	if !ok {
 		s = newSchema(t)
-		this.schameMap[t] = s
+		rd.schameMap[t] = s
 	}
 	return s
 }
 
-func newReader(cn *Connect, workSheetFileReader io.ReadCloser, titleRowIndex, skip int) (Reader, error) {
+func newReader(cn *connect, workSheetFileReader io.ReadCloser, titleRowIndex, skip int) (Reader, error) {
 	rd, err := newBaseReaderByWorkSheetFile(cn, workSheetFileReader)
 	if err != nil {
 		return nil, err
@@ -226,12 +227,12 @@ func newReader(cn *Connect, workSheetFileReader io.ReadCloser, titleRowIndex, sk
 			return rd, nil
 		}
 	}
-	rd.schameMap = make(map[reflect.Type]*Schema)
+	rd.schameMap = make(map[reflect.Type]*schema)
 	return rd, err
 }
 
 // Make a base reader to sheet
-func newBaseReaderByWorkSheetFile(cn *Connect, rc io.ReadCloser) (*Read, error) {
+func newBaseReaderByWorkSheetFile(cn *connect, rc io.ReadCloser) (*read, error) {
 	decoder := xml.NewDecoder(rc)
 	// step into root [xml.StartElement] token
 	func(decoder *xml.Decoder) {
@@ -253,7 +254,7 @@ func newBaseReaderByWorkSheetFile(cn *Connect, rc io.ReadCloser) (*Read, error) 
 			switch token := t.(type) {
 			case xml.StartElement:
 				switch token.Name.Local {
-				case _SHEET_DATA:
+				case _SheetData:
 					return
 				default:
 					decoder.Skip()
@@ -262,7 +263,7 @@ func newBaseReaderByWorkSheetFile(cn *Connect, rc io.ReadCloser) (*Read, error) 
 		}
 	}(decoder)
 
-	rd := &Read{
+	rd := &read{
 		connecter:          cn,
 		decoder:            decoder,
 		decoderReadCloseer: rc,

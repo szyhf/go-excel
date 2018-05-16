@@ -1,4 +1,4 @@
-package internal
+package excel
 
 import (
 	"reflect"
@@ -23,25 +23,25 @@ type fieldConfig struct {
 	ColumnName   string
 	DefaultValue string
 	Split        string
-	// if cell.value == NilValue, will skip this scan
+	// if cell.value == NilValue, will skip fc scan
 	NilValue string
-	// panic if reuqired this column but not set
+	// panic if reuqired fc column but not set
 	IsRequired bool
 }
 
-func (this *fieldConfig) scan(valStr string, fieldValue reflect.Value) error {
-	if this.NilValue == valStr {
+func (fc *fieldConfig) scan(valStr string, fieldValue reflect.Value) error {
+	if fc.NilValue == valStr {
 		// fmt.Printf("Got nil,skip")
 		return nil
 	}
 	var err error
 	switch fieldValue.Kind() {
 	case reflect.Slice, reflect.Array:
-		if len(this.Split) != 0 && len(valStr) > 0 {
+		if len(fc.Split) != 0 && len(valStr) > 0 {
 			// use split
-			elems := strings.Split(valStr, this.Split)
+			elems := strings.Split(valStr, fc.Split)
 			fieldValue.Set(reflect.MakeSlice(fieldValue.Type(), 0, len(elems)))
-			err = ScanSlice(elems, fieldValue.Addr())
+			err = scanSlice(elems, fieldValue.Addr())
 		}
 	case reflect.Ptr:
 		newValue := fieldValue
@@ -58,22 +58,22 @@ func (this *fieldConfig) scan(valStr string, fieldValue reflect.Value) error {
 	return err
 }
 
-func (this *fieldConfig) ScanDefault(fieldValue reflect.Value) error {
-	err := this.scan(this.DefaultValue, fieldValue)
-	if err != nil && len(this.DefaultValue) > 0 {
+func (fc *fieldConfig) ScanDefault(fieldValue reflect.Value) error {
+	err := fc.scan(fc.DefaultValue, fieldValue)
+	if err != nil && len(fc.DefaultValue) > 0 {
 		return err
 	}
 	return nil
 }
 
-type Schema struct {
+type schema struct {
 	Type reflect.Type
 	// map[FieldIndex]*Field
 	Fields []*fieldConfig
 }
 
-func newSchema(t reflect.Type) *Schema {
-	s := &Schema{
+func newSchema(t reflect.Type) *schema {
+	s := &schema{
 		Fields: make([]*fieldConfig, 0, t.NumField()),
 	}
 	for i := 0; i < t.NumField(); i++ {
@@ -121,10 +121,9 @@ func getTagParam(v string) (key, value string) {
 	end := strings.Index(v, ")")
 	if start > 0 && end == len(v)-1 {
 		return v[:start], v[start+1 : end]
-	} else {
-		// fmt.Printf("Use column as default?[%s]\n", v)
-		return columnTag, v
 	}
+	// fmt.Printf("Use column as default?[%s]\n", v)
+	return columnTag, v
 }
 
 func fillField(c *fieldConfig, k, v string) {

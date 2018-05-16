@@ -1,4 +1,4 @@
-package twentySix
+package twentysix
 
 // a 26-number-system to decoder/encoder column of excel
 // It's a very special system, don't use it as default system!!!
@@ -12,6 +12,7 @@ func charOfNum(n int) rune {
 	return rune('A') + rune(n)
 }
 
+// ToDecimalism convert string to int
 func ToDecimalism(s string) int {
 	res := 0
 	ary := []rune(s)

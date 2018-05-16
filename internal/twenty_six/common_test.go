@@ -1,4 +1,4 @@
-package twentySix
+package twentysix
 
 import (
 	"testing"

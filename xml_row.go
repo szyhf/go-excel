@@ -1,4 +1,4 @@
-package internal
+package excel
 
 // xlsxC directly maps the c element in the namespace
 // http://schemas.openxmlformats.org/spreadsheetml/2006/main -

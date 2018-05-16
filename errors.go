@@ -1,13 +1,20 @@
 package excel
 
-import "github.com/szyhf/go-excel/internal"
+import "errors"
 
 var (
-	ErrConnectNotOpened      = internal.ErrConnectNotOpened
-	ErrWorkbookNotExist      = internal.ErrWorkbookNotExist
-	ErrSharedStringsNotExist = internal.ErrSharedStringsNotExist
-	ErrInvalidConatiner      = internal.ErrInvalidConatiner
-	ErrEmptyRow              = internal.ErrEmptyRow
-	ErrNoRow                 = internal.ErrNoRow
-	ErrScanNil               = internal.ErrScanNil
+	// ErrConnectNotOpened means can not open connect to excel.
+	ErrConnectNotOpened = errors.New("connect should opened")
+	// ErrWorkbookNotExist means can not found the workbook of excel.
+	ErrWorkbookNotExist = errors.New("parse xlsx file failed: xl/workbook.xml not exist")
+	// ErrSharedStringsNotExist means can not found the shared of excel.
+	ErrSharedStringsNotExist = errors.New("parse xlsx file failed: xl/sharedStringPaths.xml not exist")
+	// ErrInvalidConatiner means can not using the container.
+	ErrInvalidConatiner = errors.New("container should be ptr to slice")
+	// ErrEmptyRow means the row is empty.
+	ErrEmptyRow = errors.New("empty row")
+	// ErrNoRow means there is no row.
+	ErrNoRow = errors.New("no row")
+	// ErrScanNil means scan nil.
+	ErrScanNil = errors.New("scan(nil)")
 )

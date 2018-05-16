@@ -1,4 +1,4 @@
-package internal
+package excel
 
 import (
 	"encoding"
@@ -65,7 +65,7 @@ func scan(s string, ptr interface{}) error {
 	return err
 }
 
-func ScanSlice(data []string, sliceValue reflect.Value) error {
+func scanSlice(data []string, sliceValue reflect.Value) error {
 	if !sliceValue.IsValid() {
 		return fmt.Errorf("ScanSlice(nil)")
 	}
@@ -78,7 +78,7 @@ func ScanSlice(data []string, sliceValue reflect.Value) error {
 	}
 
 	for i, s := range data {
-		elem := SliceNextElem(sliceValue)
+		elem := sliceNextElem(sliceValue)
 		if err := scan(s, elem.Addr().Interface()); err != nil {
 			return fmt.Errorf("ScanSlice(index=%d value=%q) failed: %s", i, s, err)
 		}
@@ -87,7 +87,7 @@ func ScanSlice(data []string, sliceValue reflect.Value) error {
 	return nil
 }
 
-func SliceNextElem(v reflect.Value) reflect.Value {
+func sliceNextElem(v reflect.Value) reflect.Value {
 	elemType := v.Type().Elem()
 
 	if v.Len() < v.Cap() {

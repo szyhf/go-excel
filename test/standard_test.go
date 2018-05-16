@@ -14,7 +14,7 @@ func strPtr(s string) *string {
 }
 
 var expectStandardList = []Standard{
-	Standard{
+	{
 		ID:      1,
 		Name:    "Andy",
 		NamePtr: strPtr("Andy"),
@@ -24,7 +24,7 @@ var expectStandardList = []Standard{
 			Foo: "Andy",
 		},
 	},
-	Standard{
+	{
 		ID:      2,
 		Name:    "Leo",
 		NamePtr: strPtr("Leo"),
@@ -34,7 +34,7 @@ var expectStandardList = []Standard{
 			Foo: "Leo",
 		},
 	},
-	Standard{
+	{
 		ID:      3,
 		Name:    "Ben",
 		NamePtr: strPtr("Ben"),
@@ -44,7 +44,7 @@ var expectStandardList = []Standard{
 			Foo: "Ben",
 		},
 	},
-	Standard{
+	{
 		ID:      4,
 		Name:    "Ming",
 		NamePtr: strPtr("Ming"),
@@ -57,7 +57,7 @@ var expectStandardList = []Standard{
 }
 
 var expectStandardPtrList = []*Standard{
-	&Standard{
+	{
 		ID:      1,
 		Name:    "Andy",
 		NamePtr: strPtr("Andy"),
@@ -67,7 +67,7 @@ var expectStandardPtrList = []*Standard{
 			Foo: "Andy",
 		},
 	},
-	&Standard{
+	{
 		ID:      2,
 		Name:    "Leo",
 		NamePtr: strPtr("Leo"),
@@ -77,7 +77,7 @@ var expectStandardPtrList = []*Standard{
 			Foo: "Leo",
 		},
 	},
-	&Standard{
+	{
 		ID:      3,
 		Name:    "Ben",
 		NamePtr: strPtr("Ben"),
@@ -87,7 +87,7 @@ var expectStandardPtrList = []*Standard{
 			Foo: "Ben",
 		},
 	},
-	&Standard{
+	{
 		ID:      4,
 		Name:    "Ming",
 		NamePtr: strPtr("Ming"),
@@ -124,8 +124,8 @@ type Temp struct {
 	Foo string
 }
 
-func (this *Temp) UnmarshalBinary(d []byte) error {
-	return json.Unmarshal(d, this)
+func (tmp *Temp) UnmarshalBinary(d []byte) error {
+	return json.Unmarshal(d, tmp)
 }
 
 func TestReadStandardSimple(t *testing.T) {

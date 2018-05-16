@@ -1,4 +1,4 @@
-package internal
+package excel
 
 import (
 	"encoding/xml"
@@ -17,20 +17,20 @@ func readSharedStringsXML(rc io.ReadCloser) []string {
 		switch token := t.(type) {
 		case xml.StartElement:
 			switch token.Name.Local {
-			case SI:
+			case _SI:
 				// don't enter default ...
-			case T:
+			case _T:
 				tStart = true
-			case R:
+			case _R:
 				rStart = true
-			case SST:
+			case _SST:
 				count := 0
 				unqCount := 0
 				for _, attr := range token.Attr {
 					switch attr.Name.Local {
-					case COUNT:
+					case _Count:
 						count = convert.MustInt(attr.Value)
-					case UNIQUE_COUNT:
+					case _UniqueCount:
 						unqCount = convert.MustInt(attr.Value)
 					}
 				}
@@ -44,11 +44,11 @@ func readSharedStringsXML(rc io.ReadCloser) []string {
 			}
 		case xml.EndElement:
 			switch token.Name.Local {
-			case SI:
+			case _SI:
 				siIndex++
-			case T:
+			case _T:
 				tStart = false
-			case R:
+			case _R:
 				rStart = false
 			}
 		case xml.CharData:

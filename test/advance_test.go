@@ -9,7 +9,7 @@ import (
 )
 
 var expectAdvanceList = []Advance{
-	Advance{
+	{
 		ID:      1,
 		Name:    "Andy",
 		NamePtr: strPtr("Andy"),
@@ -19,7 +19,7 @@ var expectAdvanceList = []Advance{
 			Foo: "Andy",
 		},
 	},
-	Advance{
+	{
 		ID:      2,
 		Name:    "Leo",
 		NamePtr: strPtr("Leo"),
@@ -29,7 +29,7 @@ var expectAdvanceList = []Advance{
 			Foo: "Leo",
 		},
 	},
-	Advance{
+	{
 		ID:      3,
 		Name:    "",
 		NamePtr: strPtr("Ben"),
@@ -39,7 +39,7 @@ var expectAdvanceList = []Advance{
 			Foo: "Ben",
 		},
 	},
-	Advance{
+	{
 		ID:      4,
 		Name:    "Ming",
 		NamePtr: strPtr("Ming"),
@@ -104,12 +104,12 @@ func TestRead(t *testing.T) {
 		if err != nil {
 			t.Error(err)
 			return
-		} else {
-			expect := expectAdvanceList[idx]
-			if !reflect.DeepEqual(expect, a) {
-				t.Errorf("unexpect advance at %d = \n%s", idx, convert.MustJsonPrettyString(a))
-			}
 		}
+		expect := expectAdvanceList[idx]
+		if !reflect.DeepEqual(expect, a) {
+			t.Errorf("unexpect advance at %d = \n%s", idx, convert.MustJsonPrettyString(a))
+		}
+
 		idx++
 	}
 }
