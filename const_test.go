@@ -1,4 +1,4 @@
-package test
+package excel_test
 
 var (
 	filePath       = "./testdata/simple.xlsx"
