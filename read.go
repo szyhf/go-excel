@@ -43,25 +43,22 @@ func (rd *read) Read(i interface{}) error {
 	switch t.Kind() {
 	case reflect.Ptr:
 		t = t.Elem()
-		if t.Kind() != reflect.Struct {
-			return fmt.Errorf("%T should be pointer to struct", i)
+		switch t.Kind() {
+		case reflect.Struct:
+			v := reflect.ValueOf(i)
+			return rd.readToStruct(t, v)
+		case reflect.Map:
+			if t.Key().Kind() != reflect.String {
+				return fmt.Errorf("%T should be pointer to map of string key", i)
+			}
+			v := reflect.ValueOf(i)
+			return rd.readToMap(t, v)
+		default:
+			return fmt.Errorf("%T should be pointer to struct or map[string]string", i)
 		}
 	default:
-		return fmt.Errorf("%T should be pointer to struct", i)
+		return fmt.Errorf("%T should be pointer to struct or map[string]string", i)
 	}
-
-	s := rd.getSchame(t)
-	v := reflect.ValueOf(i)
-	if v.IsNil() {
-		v.Set(reflect.New(t))
-	}
-	v = v.Elem()
-
-	var err error
-	for err = ErrEmptyRow; err == ErrEmptyRow; {
-		err = rd.readToValue(s, v)
-	}
-	return err
 }
 
 func (rd *read) Close() error {
@@ -113,6 +110,42 @@ func (rd *read) ReadAll(container interface{}) error {
 		}
 	}
 	return nil
+}
+
+func (rd *read) readToStruct(t reflect.Type, v reflect.Value) error {
+	s := rd.getSchame(t)
+	if v.IsNil() {
+		v.Set(reflect.New(t))
+	}
+	v = v.Elem()
+
+	var err error
+	for err = ErrEmptyRow; err == ErrEmptyRow; {
+		err = rd.readToValue(s, v)
+	}
+	return err
+}
+
+// v should be value of map[string]string
+func (rd *read) readToMap(t reflect.Type, v reflect.Value) error {
+	v = v.Elem()
+	v.Set(reflect.MakeMapWithSize(t, len(rd.title.dstMap)))
+
+	var err error
+	for err = ErrEmptyRow; err == ErrEmptyRow; {
+		err = rd.readToMapValue(v)
+	}
+	if v.Len() < len(rd.title.dstMap) {
+		for _, keyValue := range v.MapKeys() {
+			title := keyValue.String()
+			if _, ok := rd.title.dstMap[title]; !ok {
+				// fill default value to column not read.
+				val := reflect.New(v.Type().Elem())
+				v.SetMapIndex(reflect.ValueOf(title), val.Elem())
+			}
+		}
+	}
+	return err
 }
 
 func (rd *read) readToValue(s *schema, v reflect.Value) (err error) {
@@ -186,6 +219,61 @@ func (rd *read) readToValue(s *schema, v reflect.Value) (err error) {
 			if err == nil {
 				delete(fieldsMap, columnIndex)
 			}
+		}
+	}
+
+	if err != nil {
+		return err
+	}
+	return io.EOF
+}
+
+func (rd *read) readToMapValue(v reflect.Value) (err error) {
+	tempCell := &xlsxC{}
+	scaned := false
+	defer func() {
+		if !scaned && err == nil {
+			err = ErrEmptyRow
+		}
+	}()
+	for t, e := rd.decoder.Token(); e == nil; t, e = rd.decoder.Token() {
+		switch token := t.(type) {
+		case xml.StartElement:
+			if token.Name.Local == _C {
+				tempCell.R = ""
+				tempCell.T = ""
+				for _, a := range token.Attr {
+					switch a.Name.Local {
+					case _R:
+						tempCell.R = a.Value
+					case _T:
+						tempCell.T = a.Value
+					}
+				}
+			}
+		case xml.EndElement:
+			if token.Name.Local == _RowPrefix {
+				// end of current row
+				return err
+			}
+		case xml.CharData:
+			trimedColumnName := strings.TrimRight(tempCell.R, _AllNumber)
+			var valStr string
+			if tempCell.T == _S {
+				// get string from shared
+				valStr = rd.connecter.getSharedString(convert.MustInt(string(token)))
+			} else {
+				valStr = string(token)
+			}
+			val := reflect.New(v.Type().Elem())
+			err := scan(valStr, val.Interface())
+			if err != nil {
+				// skip
+			}
+			v.SetMapIndex(reflect.ValueOf(trimedColumnName), val.Elem())
+
+			// println("Key:", trimedColumnName, "Val:", valStr)
+			scaned = true
 		}
 	}
 

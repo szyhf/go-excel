@@ -99,6 +99,37 @@ var expectStandardPtrList = []*Standard{
 	},
 }
 
+var expectStandardMapList = []map[string]string{
+	map[string]string{
+		"A": "1",
+		"B": "Andy",
+		"C": "1",
+		"D": "1|2",
+		"E": "{\"Foo\":\"Andy\"}",
+	},
+	map[string]string{
+		"A": "2",
+		"B": "Leo",
+		"C": "2",
+		"D": "2|3|4",
+		"E": "{\"Foo\":\"Leo\"}",
+	},
+	map[string]string{
+		"A": "3",
+		"B": "Ben",
+		"C": "3",
+		"D": "3|4|5|6",
+		"E": "{\"Foo\":\"Ben\"}",
+	},
+	map[string]string{
+		"A": "4",
+		"B": "Ming",
+		"C": "4",
+		"D": "1",
+		"E": "{\"Foo\":\"Ming\"}",
+	},
+}
+
 // defined a struct
 type Standard struct {
 	// use field name as default column name
@@ -246,5 +277,39 @@ func TestReadStandardPtrAll(t *testing.T) {
 	}
 	if !reflect.DeepEqual(expectStandardPtrList, stdList) {
 		t.Errorf("unexpect stdlist: \n%s", convert.MustJsonPrettyString(stdList))
+	}
+}
+
+func TestReadStandardMap(t *testing.T) {
+	conn := excel.NewConnecter()
+	err := conn.Open(filePath)
+	if err != nil {
+		t.Error(err)
+		return
+	}
+	defer conn.Close()
+
+	// Generate an new reader of a sheet
+	// sheetNamer: if sheetNamer is string, will use sheet as sheet name.
+	//             if sheetNamer is a object implements `GetXLSXSheetName()string`, the return value will be used.
+	//             otherwise, will use sheetNamer as struct and reflect for it's name.
+	// 			   if sheetNamer is a slice, the type of element will be used to infer like before.
+	rd, err := conn.NewReader(stdSheetName)
+	if err != nil {
+		t.Error(err)
+		return
+	}
+	defer rd.Close()
+
+	idx := 0
+	for rd.Next() {
+		var m map[string]string
+		rd.Read(&m)
+
+		expectStdMap := expectStandardMapList[idx]
+		if !reflect.DeepEqual(m, expectStdMap) {
+			t.Errorf("unexpect std at %d = \n%s", idx, convert.MustJsonPrettyString(expectStdMap))
+		}
+		idx++
 	}
 }

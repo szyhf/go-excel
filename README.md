@@ -1,4 +1,5 @@
 # Intro | 简介
+
 [![Go Report Card](https://goreportcard.com/badge/github.com/szyhf/go-excel)](https://goreportcard.com/report/github.com/szyhf/go-excel)
 ![cover.run go](https://cover.run/go/github.com/szyhf/go-excel.svg?tag=golang-1.10)
 [![GoDoc](https://godoc.org/github.com/szyhf/go-excel?status.png)](https://godoc.org/github.com/szyhf/go-excel)
@@ -179,7 +180,7 @@ Will return error if clomun title not exist in excel.
 + Fill string cell with value of shared string xml. √
 + Can set the column name row, default is the first row. √
 + Read a row to a struct by column name. √
-+ Read a row into a map.
++ Read a row into a map with string key. √
 + Read a row into a map by primary key.
 
 ## Thinking | 随想
