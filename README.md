@@ -107,10 +107,23 @@ func defaultUsage(){
 	//	 return
 	// }
 	// fmt.Printf("%+v",stdList)
+
+	// map with string key is support, too.
+	// if value is not string
+	// will try to unmarshal to target type
+	// but will skip if unmarshal failed.
+
+	// var stdMapList []map[string]string
+	// err = rd.ReadAll(&stdMapList)
+	// if err != nil {
+	//   panic(err)
+	//	 return
+	// }
+	// fmt.Printf("%+v",stdList)
 }
 ```
 
-> See the `simple.xlsx`.`Standard` in `testdata` and code in `./test/standard_test.go` for details.
+> See the `simple.xlsx`.`Standard` in `testdata` and code in `./standard_test.go` and `./standard_example_test.go` for details.
 
 ## Advance | 进阶用法
 
