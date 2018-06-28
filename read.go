@@ -91,24 +91,43 @@ func (rd *read) ReadAll(container interface{}) error {
 	if elemTyp.Kind() == reflect.Ptr {
 		elemTyp = elemTyp.Elem()
 	}
-	elemSchema := newSchema(elemTyp)
-
 	var err error
-	slcVal := val.Elem()
-	for rd.Next() {
-		elmVal := sliceNextElem(slcVal)
-		for err = ErrEmptyRow; err == ErrEmptyRow; {
-			err = rd.readToValue(elemSchema, elmVal)
+	switch elemTyp.Kind() {
+	case reflect.Struct:
+		elemSchema := newSchema(elemTyp)
+		slcVal := val.Elem()
+		for rd.Next() {
+			elmVal := sliceNextElem(slcVal)
+			for err = ErrEmptyRow; err == ErrEmptyRow; {
+				err = rd.readToValue(elemSchema, elmVal)
+			}
+			if err != nil {
+				// remove the last row.
+				slcVal.SetLen(slcVal.Len() - 1)
+				if err != io.EOF {
+					// EOF is normal.
+					return err
+				}
+			}
 		}
-		if err != nil {
-			// remove the last row.
-			slcVal.SetLen(slcVal.Len() - 1)
-			if err != io.EOF {
-				// EOF is normal.
-				return err
+	case reflect.Map:
+		slcVal := val.Elem()
+		for rd.Next() {
+			elmVal := sliceNextElem(slcVal)
+			for err = ErrEmptyRow; err == ErrEmptyRow; {
+				err = rd.readToMap(elemTyp, elmVal)
+			}
+			if err != nil {
+				// remove the last row.
+				slcVal.SetLen(slcVal.Len() - 1)
+				if err != io.EOF {
+					// EOF is normal.
+					return err
+				}
 			}
 		}
 	}
+
 	return nil
 }
 
@@ -128,7 +147,9 @@ func (rd *read) readToStruct(t reflect.Type, v reflect.Value) error {
 
 // v should be value of map[string]string
 func (rd *read) readToMap(t reflect.Type, v reflect.Value) error {
-	v = v.Elem()
+	if v.Kind() == reflect.Ptr {
+		v = v.Elem()
+	}
 	v.Set(reflect.MakeMapWithSize(t, len(rd.title.dstMap)))
 
 	var err error
