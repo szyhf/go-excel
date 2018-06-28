@@ -1,3 +1,5 @@
+// Package excel provide a simple and light reader to read `*.xlsx` as a relate-db-like table.
+// See `ReadMe.md` or `Examples` for more usage.
 package excel
 
 // NewConnecter make a new connecter to connect to a exist xlsx file.
