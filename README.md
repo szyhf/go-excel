@@ -29,6 +29,8 @@ Assume you have a xlsx file like below:
 + the first row is the title row.
 + other row is the data row.
 
+> All examples list in [https://godoc.org/github.com/szyhf/go-excel#pkg-examples](https://godoc.org/github.com/szyhf/go-excel#pkg-examples).
+
 ```go
 // defined a struct
 type Standard struct {
