@@ -2,8 +2,10 @@ package excel
 
 import (
 	"archive/zip"
+	"bytes"
 	"errors"
 	"fmt"
+	"io"
 	"strings"
 )
 
@@ -21,21 +23,46 @@ type connect struct {
 	worksheetIDFileMap   map[string]*zip.File
 	worksheetNameFileMap map[string]*zip.File
 	worksheetNameList    []string
-	zipReader            *zip.ReadCloser
+
+	// 实际的读取接口
+	zipReader *zip.Reader
+	// 仅读取文件时有效
+	zipReaderCloser io.ReadCloser
 }
 
 // Open a excel file
 func (conn *connect) Open(filePath string) error {
 	var err error
-	conn.zipReader, err = zip.OpenReader(filePath)
+	zipReaderCloser, err := zip.OpenReader(filePath)
+	if err != nil {
+		return err
+	}
+	conn.zipReader = &zipReaderCloser.Reader
+	// prepare for files
+	err = conn.init()
+	if err != nil {
+		if conn.zipReaderCloser != nil {
+			conn.zipReaderCloser.Close()
+			conn.zipReaderCloser = nil
+		}
+		conn.zipReader = nil
+		return err
+	}
+	return nil
+}
+
+// OpenReader read a binary of xlsx file.
+func (conn *connect) OpenBinary(xlsxData []byte) error {
+	rd := bytes.NewReader(xlsxData)
+	var err error
+	conn.zipReader, err = zip.NewReader(rd, int64(rd.Len()))
 	if err != nil {
 		return err
 	}
 	// prepare for files
 	err = conn.init()
 	if err != nil {
-		conn.zipReader.Close()
-		conn.zipReader = nil
+		// 没有zipReader，不用Close
 		return err
 	}
 	return nil
@@ -43,9 +70,12 @@ func (conn *connect) Open(filePath string) error {
 
 // Close file reader
 func (conn *connect) Close() error {
-	err := conn.zipReader.Close()
-	if err != nil {
-		return err
+	if conn.zipReaderCloser != nil {
+		err := conn.zipReaderCloser.Close()
+		if err != nil {
+			return err
+		}
+		conn.zipReaderCloser = nil
 	}
 	conn.zipReader = nil
 

@@ -122,6 +122,16 @@ func defaultUsage(){
 	//	 return
 	// }
 	// fmt.Printf("%+v",stdList)
+
+	// Using binary instead of file.
+	// xlsxData, err := ioutil.ReadFile(filePath)
+	// if err != nil {
+	// 	fmt.Println(err)
+	// 	return
+	// }
+
+	// conn := excel.NewConnecter()
+	// err = conn.OpenBinary(xlsxData)
 }
 ```
 

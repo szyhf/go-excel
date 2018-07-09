@@ -34,6 +34,9 @@ type Reader interface {
 type Connecter interface {
 	// Open a file of excel
 	Open(filePath string) error
+	// Open a binary of excel
+	OpenBinary(xlsxData []byte) error
+
 	// Close file reader
 	Close() error
 

@@ -2,6 +2,7 @@ package excel_test
 
 import (
 	"fmt"
+	"io/ioutil"
 	"reflect"
 
 	convert "github.com/szyhf/go-convert"
@@ -121,6 +122,49 @@ func ExampleUnmarshalXLSX_ptr() {
 func ExampleReader_readAllSlicePtr() {
 	conn := excel.NewConnecter()
 	err := conn.Open(filePath)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	defer conn.Close()
+
+	var stdList []*Standard
+	// Generate an new reader of a sheet
+	// sheetNamer: if sheetNamer is string, will use sheet as sheet name.
+	//             if sheetNamer is a object implements `GetXLSXSheetName()string`, the return value will be used.
+	//             otherwise, will use sheetNamer as struct and reflect for it's name.
+	// 			   if sheetNamer is a slice, the type of element will be used to infer like before.
+	rd, err := conn.NewReader(stdList)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	defer rd.Close()
+
+	err = rd.ReadAll(&stdList)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	if !reflect.DeepEqual(expectStandardPtrList, stdList) {
+		fmt.Printf("unexpect stdlist: \n%s", convert.MustJsonPrettyString(stdList))
+	}
+
+	fmt.Println(convert.MustJsonString(stdList))
+
+	// output:
+	// [{"ID":1,"Name":"Andy","NamePtr":"Andy","Age":1,"Slice":[1,2],"Temp":{"Foo":"Andy"},"WantIgnored":""},{"ID":2,"Name":"Leo","NamePtr":"Leo","Age":2,"Slice":[2,3,4],"Temp":{"Foo":"Leo"},"WantIgnored":""},{"ID":3,"Name":"Ben","NamePtr":"Ben","Age":3,"Slice":[3,4,5,6],"Temp":{"Foo":"Ben"},"WantIgnored":""},{"ID":4,"Name":"Ming","NamePtr":"Ming","Age":4,"Slice":[1],"Temp":{"Foo":"Ming"},"WantIgnored":""}]
+}
+
+func ExampleReader_readBinaryAllSlicePtr() {
+	xlsxData, err := ioutil.ReadFile(filePath)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+
+	conn := excel.NewConnecter()
+	err = conn.OpenBinary(xlsxData)
 	if err != nil {
 		fmt.Println(err)
 		return

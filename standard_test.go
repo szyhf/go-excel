@@ -2,6 +2,8 @@ package excel_test
 
 import (
 	"encoding/json"
+	"fmt"
+	"io/ioutil"
 	"reflect"
 	"testing"
 
@@ -251,6 +253,44 @@ func TestReadStandardPtrSimple(t *testing.T) {
 func TestReadStandardPtrAll(t *testing.T) {
 	conn := excel.NewConnecter()
 	err := conn.Open(filePath)
+	if err != nil {
+		t.Error(err)
+		return
+	}
+	defer conn.Close()
+
+	var stdList []*Standard
+	// Generate an new reader of a sheet
+	// sheetNamer: if sheetNamer is string, will use sheet as sheet name.
+	//             if sheetNamer is a object implements `GetXLSXSheetName()string`, the return value will be used.
+	//             otherwise, will use sheetNamer as struct and reflect for it's name.
+	// 			   if sheetNamer is a slice, the type of element will be used to infer like before.
+	rd, err := conn.NewReader(stdList)
+	if err != nil {
+		t.Error(err)
+		return
+	}
+	defer rd.Close()
+
+	err = rd.ReadAll(&stdList)
+	if err != nil {
+		t.Error(err)
+		return
+	}
+	if !reflect.DeepEqual(expectStandardPtrList, stdList) {
+		t.Errorf("unexpect stdlist: \n%s", convert.MustJsonPrettyString(stdList))
+	}
+}
+
+func TestReadBinaryStandardPtrAll(t *testing.T) {
+	xlsxData, err := ioutil.ReadFile(filePath)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+
+	conn := excel.NewConnecter()
+	err = conn.OpenBinary(xlsxData)
 	if err != nil {
 		t.Error(err)
 		return
