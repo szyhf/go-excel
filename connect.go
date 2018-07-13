@@ -17,10 +17,17 @@ type connect struct {
 
 	// xl/sharedStringPaths.xml
 	sharedStringPathsFile *zip.File
+	// xl/_rels/workbook.xml.rels
+	workbookRels *zip.File
+	// map["rId*"]"xl/path/to/target";
+	// just support rels for workbook now.
+	workbookRelsIDMap map[string]string
 	// xl/workbook.xml
 	workbookFile *zip.File
-	// "xl/worksheets/sheet*.xml" map[sheet*]*zip.File
-	worksheetIDFileMap   map[string]*zip.File
+	// "xl/worksheets/sheet*.xml"
+	// map["xl/path/to/sheet*.xml"]*zip.File
+	worksheetFileMap map[string]*zip.File
+	// map["sheet_name"]*zip.File
 	worksheetNameFileMap map[string]*zip.File
 	worksheetNameList    []string
 
@@ -84,7 +91,7 @@ func (conn *connect) Close() error {
 	conn.sharedStringPathsFile = nil
 	conn.workbookFile = nil
 
-	conn.worksheetIDFileMap = nil
+	conn.worksheetFileMap = nil
 	conn.worksheetNameFileMap = nil
 
 	return nil
@@ -154,22 +161,25 @@ func (conn *connect) getSharedString(id int) string {
 
 func (conn *connect) init() error {
 	// Find file of "workbook.xml", "sharedString.xml" and files in worksheets
-	conn.worksheetIDFileMap = make(map[string]*zip.File)
+	conn.worksheetFileMap = make(map[string]*zip.File)
 	for _, f := range conn.zipReader.File {
 		switch f.Name {
 		case _SharedStringPath:
 			conn.sharedStringPathsFile = f
 		case _WorkBookPath:
 			conn.workbookFile = f
+		case _WorkBookRels:
+			conn.workbookRels = f
 		default:
 			if strings.HasPrefix(f.Name, _WorkSheetsPrefix) {
-				// Trim left of prefix
-				// Trim right of ".xml" as len = 4
-				worksheetIDName := f.Name[len(_WorkSheetsPrefix) : len(f.Name)-4]
-				// println("WorksheetName:", worksheetName)
-				conn.worksheetIDFileMap[worksheetIDName] = f
+				// log.Println("WorksheetName:", f.Name)
+				conn.worksheetFileMap[f.Name] = f
 			}
 		}
+	}
+
+	if conn.workbookRels == nil {
+		return ErrWorkbookRelsNotExist
 	}
 	if conn.workbookFile == nil {
 		return ErrWorkbookNotExist
@@ -177,22 +187,47 @@ func (conn *connect) init() error {
 	if conn.sharedStringPathsFile == nil {
 		return ErrSharedStringsNotExist
 	}
-	if conn.worksheetIDFileMap == nil || len(conn.worksheetIDFileMap) == 0 {
+	if conn.worksheetFileMap == nil || len(conn.worksheetFileMap) == 0 {
 		return ErrWorkbookNotExist
 	}
 	var err error
+	// prepare workbook rels
+	err = conn.readWorkbookRels()
+	if err != nil {
+		return errors.New("read workbook rels failed:" + err.Error())
+	}
 	// prepare workbook
 	err = conn.readWorkbook()
 	if err != nil {
 		return errors.New("read workbook failed:" + err.Error())
 	}
 	// prepare sharedstring
-	rc, err := conn.sharedStringPathsFile.Open()
+	err = conn.readSharedString()
+	if err != nil {
+		return errors.New("read shared string failed:" + err.Error())
+	}
+	return nil
+}
+
+func (conn *connect) readWorkbookRels() error {
+	rc, err := conn.workbookRels.Open()
 	if err != nil {
 		return err
 	}
-	conn.sharedStringPaths = readSharedStringsXML(rc)
-	rc.Close()
+	wbRels, err := readWorkbookRelsXML(rc)
+	if err != nil {
+		rc.Close()
+		return err
+	}
+	conn.workbookRelsIDMap = make(map[string]string, len(wbRels.Relationships))
+	for _, rel := range wbRels.Relationships {
+		if rel.Type == _RelTypeWorkSheet {
+			// Is a rels for worksheet
+			conn.workbookRelsIDMap[rel.ID] = _XL + rel.Target
+		}
+	}
+	// log.Println(conn.workbookRelsIDMap)
+
 	return nil
 }
 
@@ -215,13 +250,28 @@ func (conn *connect) readWorkbook() error {
 	for _, sheet := range wb.Sheets.Sheet {
 		conn.sheets = append(conn.sheets, sheet.Name)
 		// record the sheet name to *zip.File
-		sheetID := strings.TrimLeft(sheet.ID, _RID)
-		file, ok := conn.worksheetIDFileMap[sheetID]
+		sheetTargetPath, ok := conn.workbookRelsIDMap[sheet.RID]
 		if !ok {
-			return fmt.Errorf("Sheet.ID = %s not exist", sheetID)
+			return fmt.Errorf("Sheet.RID = %s not exist", sheet.RID)
 		}
+		// log.Println(sheetTargetPath)
+		file, ok := conn.worksheetFileMap[sheetTargetPath]
+		if !ok {
+			return fmt.Errorf("Sheet %s not exist", sheetTargetPath)
+		}
+		// log.Println(sheet.Name)
 		conn.worksheetNameFileMap[sheet.Name] = file
 	}
+	rc.Close()
+	return nil
+}
+
+func (conn *connect) readSharedString() error {
+	rc, err := conn.sharedStringPathsFile.Open()
+	if err != nil {
+		return err
+	}
+	conn.sharedStringPaths = readSharedStringsXML(rc)
 	rc.Close()
 	return nil
 }

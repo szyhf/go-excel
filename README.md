@@ -126,7 +126,7 @@ func defaultUsage(){
 	// Using binary instead of file.
 	// xlsxData, err := ioutil.ReadFile(filePath)
 	// if err != nil {
-	// 	fmt.Println(err)
+	// 	log.Println(err)
 	// 	return
 	// }
 

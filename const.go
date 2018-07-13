@@ -1,8 +1,11 @@
 package excel
 
 const (
+	_XL = "xl/"
 	// 所有的值汇总
 	_SharedStringPath = "xl/sharedStrings.xml"
+	// Resource(例如Sheet)和rId的关系定义
+	_WorkBookRels = "xl/_rels/workbook.xml.rels"
 	// 找个各个sheet的名字的地方
 	_WorkBookPath = "xl/workbook.xml"
 	// 各个工作表的数据
@@ -24,4 +27,7 @@ const (
 	_UniqueCount = "uniqueCount"
 	_C           = "c"
 	_RID         = "rId"
+
+	// workbook.xml.rels表中描述worksheet类型的类型枚举
+	_RelTypeWorkSheet = "http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet"
 )

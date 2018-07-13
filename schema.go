@@ -31,7 +31,7 @@ type fieldConfig struct {
 
 func (fc *fieldConfig) scan(valStr string, fieldValue reflect.Value) error {
 	if fc.NilValue == valStr {
-		// fmt.Printf("Got nil,skip")
+		// log.Printf("Got nil,skip")
 		return nil
 	}
 	var err error
@@ -122,7 +122,7 @@ func getTagParam(v string) (key, value string) {
 	if start > 0 && end == len(v)-1 {
 		return v[:start], v[start+1 : end]
 	}
-	// fmt.Printf("Use column as default?[%s]\n", v)
+	// log.Printf("Use column as default?[%s]\n", v)
 	return columnTag, v
 }
 

@@ -19,7 +19,7 @@ func ToDecimalism(s string) int {
 
 	for i, j := len(ary)-2, 26; i >= 0; i, j = i-1, j*26 {
 		c := ary[i]
-		// fmt.Printf("res(%d)=res(%d)+(Num(%d)+1)*%d, c=%s, i=%d, j=%d\n", res+(NumOfChar(c)+1)*j, res, NumOfChar(c), j, string(c), i, j)
+		// log.Printf("res(%d)=res(%d)+(Num(%d)+1)*%d, c=%s, i=%d, j=%d\n", res+(NumOfChar(c)+1)*j, res, NumOfChar(c), j, string(c), i, j)
 		res = res + (numOfChar(c)+1)*j
 	}
 

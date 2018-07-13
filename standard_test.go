@@ -2,7 +2,6 @@ package excel_test
 
 import (
 	"encoding/json"
-	"fmt"
 	"io/ioutil"
 	"reflect"
 	"testing"
@@ -10,6 +9,10 @@ import (
 	convert "github.com/szyhf/go-convert"
 	excel "github.com/szyhf/go-excel"
 )
+
+func init() {
+	// log.SetFlags(log.Llongfile)
+}
 
 func strPtr(s string) *string {
 	return &s
@@ -103,32 +106,32 @@ var expectStandardPtrList = []*Standard{
 
 var expectStandardMapList = []map[string]string{
 	map[string]string{
-		"A": "1",
-		"B": "Andy",
-		"C": "1",
-		"D": "1|2",
-		"E": "{\"Foo\":\"Andy\"}",
+		"ID":              "1",
+		"NameOf":          "Andy",
+		"AgeOf":           "1",
+		"Slice":           "1|2",
+		"UnmarshalString": "{\"Foo\":\"Andy\"}",
 	},
 	map[string]string{
-		"A": "2",
-		"B": "Leo",
-		"C": "2",
-		"D": "2|3|4",
-		"E": "{\"Foo\":\"Leo\"}",
+		"ID":              "2",
+		"NameOf":          "Leo",
+		"AgeOf":           "2",
+		"Slice":           "2|3|4",
+		"UnmarshalString": "{\"Foo\":\"Leo\"}",
 	},
 	map[string]string{
-		"A": "3",
-		"B": "Ben",
-		"C": "3",
-		"D": "3|4|5|6",
-		"E": "{\"Foo\":\"Ben\"}",
+		"ID":              "3",
+		"NameOf":          "Ben",
+		"AgeOf":           "3",
+		"Slice":           "3|4|5|6",
+		"UnmarshalString": "{\"Foo\":\"Ben\"}",
 	},
 	map[string]string{
-		"A": "4",
-		"B": "Ming",
-		"C": "4",
-		"D": "1",
-		"E": "{\"Foo\":\"Ming\"}",
+		"ID":              "4",
+		"NameOf":          "Ming",
+		"AgeOf":           "4",
+		"Slice":           "1",
+		"UnmarshalString": "{\"Foo\":\"Ming\"}",
 	},
 }
 
@@ -285,7 +288,7 @@ func TestReadStandardPtrAll(t *testing.T) {
 func TestReadBinaryStandardPtrAll(t *testing.T) {
 	xlsxData, err := ioutil.ReadFile(filePath)
 	if err != nil {
-		fmt.Println(err)
+		t.Error(err)
 		return
 	}
 

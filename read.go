@@ -156,6 +156,7 @@ func (rd *read) readToMap(t reflect.Type, v reflect.Value) error {
 	for err = ErrEmptyRow; err == ErrEmptyRow; {
 		err = rd.readToMapValue(v)
 	}
+
 	if v.Len() < len(rd.title.dstMap) {
 		for _, keyValue := range v.MapKeys() {
 			title := keyValue.String()
@@ -202,7 +203,7 @@ func (rd *read) readToValue(s *schema, v reflect.Value) (err error) {
 				for _, notFilledFields := range fieldsMap {
 					for _, fieldCnf := range notFilledFields {
 						fieldValue := v.Field(fieldCnf.FieldIndex)
-						// fmt.Printf("Fill %s = %v with default: %s", v.Type().Field(fieldCnf.FieldIndex).Name, fieldValue.Interface(), fieldCnf.DefaultValue)
+						// log.Printf("Fill %s = %v with default: %s", v.Type().Field(fieldCnf.FieldIndex).Name, fieldValue.Interface(), fieldCnf.DefaultValue)
 						err = fieldCnf.ScanDefault(fieldValue)
 						if err != nil {
 							return err
@@ -291,9 +292,10 @@ func (rd *read) readToMapValue(v reflect.Value) (err error) {
 			if err != nil {
 				// skip
 			}
-			v.SetMapIndex(reflect.ValueOf(trimedColumnName), val.Elem())
-
-			// println("Key:", trimedColumnName, "Val:", valStr)
+			columnIndex := twentysix.ToDecimalism(trimedColumnName)
+			title := rd.title.srcMap[columnIndex]
+			v.SetMapIndex(reflect.ValueOf(title), val.Elem())
+			// log.Println("Key:", trimedColumnName, "Val:", valStr)
 			scaned = true
 		}
 	}
@@ -330,7 +332,7 @@ func newReader(cn *connect, workSheetFileReader io.ReadCloser, titleRowIndex, sk
 
 	// consider skip
 	// Next() will called before Read() so just skip cursor to the row before first data row.
-	// fmt.Println("Start for skip")
+	// log.Println("Start for skip")
 	for i = 0; i < skip; i++ {
 		if !rd.Next() {
 			return rd, nil
@@ -359,7 +361,7 @@ func newBaseReaderByWorkSheetFile(cn *connect, rc io.ReadCloser) (*read, error) 
 	func(decoder *xml.Decoder) {
 		// use func block to break to 'for' range
 		for t, err := decoder.Token(); err == nil; t, err = decoder.Token() {
-			// fmt.Printf("%+v\n\n", t)
+			// log.Printf("%+v\n\n", t)
 			switch token := t.(type) {
 			case xml.StartElement:
 				switch token.Name.Local {

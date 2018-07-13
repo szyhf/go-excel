@@ -235,10 +235,10 @@ func ExampleReader_readMap() {
 	}
 
 	// output:
-	// 0 => {"A":"1","B":"Andy","C":"1","D":"1|2","E":"{\"Foo\":\"Andy\"}"}
-	// 1 => {"A":"2","B":"Leo","C":"2","D":"2|3|4","E":"{\"Foo\":\"Leo\"}"}
-	// 2 => {"A":"3","B":"Ben","C":"3","D":"3|4|5|6","E":"{\"Foo\":\"Ben\"}"}
-	// 3 => {"A":"4","B":"Ming","C":"4","D":"1","E":"{\"Foo\":\"Ming\"}"}
+	// 0 => {"AgeOf":"1","ID":"1","NameOf":"Andy","Slice":"1|2","UnmarshalString":"{\"Foo\":\"Andy\"}"}
+	// 1 => {"AgeOf":"2","ID":"2","NameOf":"Leo","Slice":"2|3|4","UnmarshalString":"{\"Foo\":\"Leo\"}"}
+	// 2 => {"AgeOf":"3","ID":"3","NameOf":"Ben","Slice":"3|4|5|6","UnmarshalString":"{\"Foo\":\"Ben\"}"}
+	// 3 => {"AgeOf":"4","ID":"4","NameOf":"Ming","Slice":"1","UnmarshalString":"{\"Foo\":\"Ming\"}"}
 }
 
 func ExampleReader_readAllSliceMap() {
@@ -276,7 +276,7 @@ func ExampleReader_readAllSliceMap() {
 	fmt.Println(convert.MustJsonString(stdMapList))
 
 	// output:
-	// [{"A":"1","B":"Andy","C":"1","D":"1|2","E":"{\"Foo\":\"Andy\"}"},{"A":"2","B":"Leo","C":"2","D":"2|3|4","E":"{\"Foo\":\"Leo\"}"},{"A":"3","B":"Ben","C":"3","D":"3|4|5|6","E":"{\"Foo\":\"Ben\"}"},{"A":"4","B":"Ming","C":"4","D":"1","E":"{\"Foo\":\"Ming\"}"}]
+	// [{"AgeOf":"1","ID":"1","NameOf":"Andy","Slice":"1|2","UnmarshalString":"{\"Foo\":\"Andy\"}"},{"AgeOf":"2","ID":"2","NameOf":"Leo","Slice":"2|3|4","UnmarshalString":"{\"Foo\":\"Leo\"}"},{"AgeOf":"3","ID":"3","NameOf":"Ben","Slice":"3|4|5|6","UnmarshalString":"{\"Foo\":\"Ben\"}"},{"AgeOf":"4","ID":"4","NameOf":"Ming","Slice":"1","UnmarshalString":"{\"Foo\":\"Ming\"}"}]
 }
 
 func ExampleReader_readAllSliceMapOtherValueType() {
@@ -312,5 +312,5 @@ func ExampleReader_readAllSliceMapOtherValueType() {
 	fmt.Println(convert.MustJsonString(stdMapList))
 
 	// output:
-	// [{"A":1,"B":0,"C":1,"D":0,"E":0},{"A":2,"B":0,"C":2,"D":0,"E":0},{"A":3,"B":0,"C":3,"D":0,"E":0},{"A":4,"B":0,"C":4,"D":1,"E":0}]
+	// [{"AgeOf":1,"ID":1,"NameOf":0,"Slice":0,"UnmarshalString":0},{"AgeOf":2,"ID":2,"NameOf":0,"Slice":0,"UnmarshalString":0},{"AgeOf":3,"ID":3,"NameOf":0,"Slice":0,"UnmarshalString":0},{"AgeOf":4,"ID":4,"NameOf":0,"Slice":1,"UnmarshalString":0}]
 }
