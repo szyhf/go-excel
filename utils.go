@@ -1,13 +1,19 @@
 package excel
 
 import (
+	"fmt"
 	"reflect"
 )
 
-func parseSheetName(i interface{}) string {
+func (conn *connect) parseSheetName(i interface{}) string {
 	switch s := i.(type) {
 	case string:
 		return s
+	case int, int8, int32, int64, uint, uint8, uint16, uint32, uint64:
+		if name, ok := conn.worksheetIDToNameMap[fmt.Sprintf("%d", s)]; ok {
+			return name
+		}
+		return ""
 	case interface {
 		GetXLSXSheetName() string
 	}:
@@ -21,7 +27,7 @@ func parseSheetName(i interface{}) string {
 			if typ.Kind() == reflect.Ptr {
 				typ = typ.Elem()
 			}
-			return parseSheetName(reflect.New(typ).Elem().Interface())
+			return conn.parseSheetName(reflect.New(typ).Elem().Interface())
 		default:
 			return typ.Name()
 		}

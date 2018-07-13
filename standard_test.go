@@ -187,10 +187,45 @@ func TestReadStandard(t *testing.T) {
 
 	// Generate an new reader of a sheet
 	// sheetNamer: if sheetNamer is string, will use sheet as sheet name.
+	//             if sheetNamer is int, will use sheet as sheet name.
 	//             if sheetNamer is a object implements `GetXLSXSheetName()string`, the return value will be used.
 	//             otherwise, will use sheetNamer as struct and reflect for it's name.
 	// 			   if sheetNamer is a slice, the type of element will be used to infer like before.
 	rd, err := conn.NewReader(stdSheetName)
+	if err != nil {
+		t.Error(err)
+		return
+	}
+	defer rd.Close()
+
+	idx := 0
+	for rd.Next() {
+		var s Standard
+		rd.Read(&s)
+		expectStd := expectStandardList[idx]
+		if !reflect.DeepEqual(s, expectStd) {
+			t.Errorf("unexpect std at %d = \n%s", idx, convert.MustJsonPrettyString(expectStd))
+		}
+		idx++
+	}
+}
+
+func TestReadStandardIndex(t *testing.T) {
+	conn := excel.NewConnecter()
+	err := conn.Open(filePath)
+	if err != nil {
+		t.Error(err)
+		return
+	}
+	defer conn.Close()
+
+	// Generate an new reader of a sheet
+	// sheetNamer: if sheetNamer is string, will use sheet as sheet name.
+	//             if sheetNamer is int, will use sheet as sheet name.
+	//             if sheetNamer is a object implements `GetXLSXSheetName()string`, the return value will be used.
+	//             otherwise, will use sheetNamer as struct and reflect for it's name.
+	// 			   if sheetNamer is a slice, the type of element will be used to infer like before.
+	rd, err := conn.NewReader(2)
 	if err != nil {
 		t.Error(err)
 		return
@@ -221,6 +256,7 @@ func TestReadStandardAll(t *testing.T) {
 	var stdList []Standard
 	// Generate an new reader of a sheet
 	// sheetNamer: if sheetNamer is string, will use sheet as sheet name.
+	//             if sheetNamer is int, will i'th sheet in the workbook, be careful the hidden sheet is counted. i ∈ [1,+inf]
 	//             if sheetNamer is a object implements `GetXLSXSheetName()string`, the return value will be used.
 	//             otherwise, will use sheetNamer as struct and reflect for it's name.
 	// 			   if sheetNamer is a slice, the type of element will be used to infer like before.
@@ -265,6 +301,7 @@ func TestReadStandardPtrAll(t *testing.T) {
 	var stdList []*Standard
 	// Generate an new reader of a sheet
 	// sheetNamer: if sheetNamer is string, will use sheet as sheet name.
+	//             if sheetNamer is int, will i'th sheet in the workbook, be careful the hidden sheet is counted. i ∈ [1,+inf]
 	//             if sheetNamer is a object implements `GetXLSXSheetName()string`, the return value will be used.
 	//             otherwise, will use sheetNamer as struct and reflect for it's name.
 	// 			   if sheetNamer is a slice, the type of element will be used to infer like before.
@@ -303,6 +340,7 @@ func TestReadBinaryStandardPtrAll(t *testing.T) {
 	var stdList []*Standard
 	// Generate an new reader of a sheet
 	// sheetNamer: if sheetNamer is string, will use sheet as sheet name.
+	//             if sheetNamer is int, will i'th sheet in the workbook, be careful the hidden sheet is counted. i ∈ [1,+inf]
 	//             if sheetNamer is a object implements `GetXLSXSheetName()string`, the return value will be used.
 	//             otherwise, will use sheetNamer as struct and reflect for it's name.
 	// 			   if sheetNamer is a slice, the type of element will be used to infer like before.
@@ -334,6 +372,7 @@ func TestReadStandardMap(t *testing.T) {
 
 	// Generate an new reader of a sheet
 	// sheetNamer: if sheetNamer is string, will use sheet as sheet name.
+	//             if sheetNamer is int, will i'th sheet in the workbook, be careful the hidden sheet is counted. i ∈ [1,+inf]
 	//             if sheetNamer is a object implements `GetXLSXSheetName()string`, the return value will be used.
 	//             otherwise, will use sheetNamer as struct and reflect for it's name.
 	// 			   if sheetNamer is a slice, the type of element will be used to infer like before.
@@ -368,6 +407,7 @@ func TestReadStandardSliceMap(t *testing.T) {
 
 	// Generate an new reader of a sheet
 	// sheetNamer: if sheetNamer is string, will use sheet as sheet name.
+	//             if sheetNamer is int, will i'th sheet in the workbook, be careful the hidden sheet is counted. i ∈ [1,+inf]
 	//             if sheetNamer is a object implements `GetXLSXSheetName()string`, the return value will be used.
 	//             otherwise, will use sheetNamer as struct and reflect for it's name.
 	// 			   if sheetNamer is a slice, the type of element will be used to infer like before.

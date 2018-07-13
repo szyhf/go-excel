@@ -24,6 +24,8 @@ type connect struct {
 	workbookRelsIDMap map[string]string
 	// xl/workbook.xml
 	workbookFile *zip.File
+	// map["sheet_id"]"sheet_name"
+	worksheetIDToNameMap map[string]string
 	// "xl/worksheets/sheet*.xml"
 	// map["xl/path/to/sheet*.xml"]*zip.File
 	worksheetFileMap map[string]*zip.File
@@ -99,8 +101,9 @@ func (conn *connect) Close() error {
 
 // NewReader generate an new reader of a sheet
 // sheetNamer: if sheetNamer is string, will use sheet as sheet name.
-//        if sheetNamer is a object implements `GetXLSXSheetName()string`, the return value will be used.
-//        otherwise, will use sheetNamer as struct and reflect for it's name.
+//             if sheetNamer is int, will i'th sheet in the workbook, be careful the hidden sheet is counted. i ∈ [1,+inf]
+//             if sheetNamer is a object implements `GetXLSXSheetName()string`, the return value will be used.
+//             otherwise, will use sheetNamer as struct and reflect for it's name.
 func (conn *connect) NewReader(sheetNamer interface{}) (Reader, error) {
 	return conn.NewReaderByConfig(&Config{Sheet: sheetNamer})
 }
@@ -119,7 +122,7 @@ func (conn *connect) NewReaderByConfig(config *Config) (Reader, error) {
 	if conn.zipReader == nil {
 		return nil, ErrConnectNotOpened
 	}
-	sheet := parseSheetName(config.Sheet)
+	sheet := conn.parseSheetName(config.Sheet)
 	sheet = config.Prefix + sheet + config.Suffix
 	workSheetFile, ok := conn.worksheetNameFileMap[sheet]
 	if !ok {
@@ -246,7 +249,8 @@ func (conn *connect) readWorkbook() error {
 	if conn.sheets == nil {
 		conn.sheets = make([]string, 0, len(wb.Sheets.Sheet))
 	}
-	conn.worksheetNameFileMap = make(map[string]*zip.File)
+	conn.worksheetNameFileMap = make(map[string]*zip.File, len(wb.Sheets.Sheet))
+	conn.worksheetIDToNameMap = make(map[string]string, len(wb.Sheets.Sheet))
 	for _, sheet := range wb.Sheets.Sheet {
 		conn.sheets = append(conn.sheets, sheet.Name)
 		// record the sheet name to *zip.File
@@ -261,6 +265,7 @@ func (conn *connect) readWorkbook() error {
 		}
 		// log.Println(sheet.Name)
 		conn.worksheetNameFileMap[sheet.Name] = file
+		conn.worksheetIDToNameMap[sheet.SheetID] = sheet.Name
 	}
 	rc.Close()
 	return nil

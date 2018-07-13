@@ -59,6 +59,7 @@ type xlsxSheets struct {
 // xlsxSheet directly maps the sheet element from the namespace
 // http://schemas.openxmlformats.org/spreadsheetml/2006/main
 type xlsxSheet struct {
-	Name string `xml:"name,attr,omitempty"`
-	RID  string `xml:"http://schemas.openxmlformats.org/officeDocument/2006/relationships id,attr,omitempty"`
+	Name    string `xml:"name,attr,omitempty"`
+	SheetID string `xml:"sheetId,attr,omitempty"`
+	RID     string `xml:"http://schemas.openxmlformats.org/officeDocument/2006/relationships id,attr,omitempty"`
 }
