@@ -12,10 +12,13 @@ import (
 )
 
 type titleRow struct {
-	// map[0]A1
-	dstMap map[string]int
 	// map[A1]0
+	dstMap map[string]int
+	// map[0]A1
 	srcMap map[int]string
+
+	// sorted titles
+	titles []string
 
 	typeFieldMap map[reflect.Type]map[int][]*fieldConfig
 }
@@ -29,6 +32,7 @@ func newRowAsMap(rd *read) (r *titleRow, err error) {
 	r = &titleRow{
 		dstMap: make(map[string]int),
 		srcMap: make(map[int]string),
+		titles: make([]string, 0),
 	}
 	tempCell := &xlsxC{}
 	for t, err := rd.decoder.Token(); err == nil; t, err = rd.decoder.Token() {
@@ -64,6 +68,7 @@ func newRowAsMap(rd *read) (r *titleRow, err error) {
 			}
 			r.dstMap[str] = columnIndex
 			r.srcMap[columnIndex] = str
+			r.titles = append(r.titles, str)
 		}
 	}
 

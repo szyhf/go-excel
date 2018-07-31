@@ -131,6 +131,13 @@ func (rd *read) ReadAll(container interface{}) error {
 	return nil
 }
 
+func (rd *read) GetTitles() []string {
+	// prevent unexpect edit
+	titles := make([]string, len(rd.title.titles))
+	copy(titles, rd.title.titles)
+	return titles
+}
+
 func (rd *read) readToStruct(t reflect.Type, v reflect.Value) error {
 	s := rd.getSchame(t)
 	if v.IsNil() {

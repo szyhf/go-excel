@@ -20,6 +20,8 @@ type Config struct {
 
 // Reader to read excel
 type Reader interface {
+	// Get all titles sorted
+	GetTitles() []string
 	// Read current row into a object
 	Read(v interface{}) error
 	// Read all rows
