@@ -189,10 +189,13 @@ func (rd *read) readToValue(s *schema, v reflect.Value) (err error) {
 			err = ErrEmptyRow
 		}
 	}()
+
+	isV := false
 	for t, e := rd.decoder.Token(); e == nil; t, e = rd.decoder.Token() {
 		switch token := t.(type) {
 		case xml.StartElement:
-			if token.Name.Local == _C {
+			switch token.Name.Local {
+			case _C:
 				tempCell.R = ""
 				tempCell.T = ""
 				for _, a := range token.Attr {
@@ -203,6 +206,8 @@ func (rd *read) readToValue(s *schema, v reflect.Value) (err error) {
 						tempCell.T = a.Value
 					}
 				}
+			case _V:
+				isV = true
 			}
 		case xml.EndElement:
 			if token.Name.Local == _RowPrefix {
@@ -221,6 +226,9 @@ func (rd *read) readToValue(s *schema, v reflect.Value) (err error) {
 				return err
 			}
 		case xml.CharData:
+			if !isV {
+				break
+			}
 			trimedColumnName := strings.TrimRight(tempCell.R, _AllNumber)
 			columnIndex := twentysix.ToDecimalism(trimedColumnName)
 			fields, ok := fieldsMap[columnIndex]
@@ -238,6 +246,7 @@ func (rd *read) readToValue(s *schema, v reflect.Value) (err error) {
 			}
 			// println("Key:", trimedColumnName, "Val:", valStr)
 			scaned = true
+			isV = false
 			for _, fieldCnf := range fields {
 				fieldValue := v.Field(fieldCnf.FieldIndex)
 				err = fieldCnf.scan(valStr, fieldValue)
@@ -265,10 +274,12 @@ func (rd *read) readToMapValue(v reflect.Value) (err error) {
 			err = ErrEmptyRow
 		}
 	}()
+	isV := false
 	for t, e := rd.decoder.Token(); e == nil; t, e = rd.decoder.Token() {
 		switch token := t.(type) {
 		case xml.StartElement:
-			if token.Name.Local == _C {
+			switch token.Name.Local {
+			case _C:
 				tempCell.R = ""
 				tempCell.T = ""
 				for _, a := range token.Attr {
@@ -279,6 +290,8 @@ func (rd *read) readToMapValue(v reflect.Value) (err error) {
 						tempCell.T = a.Value
 					}
 				}
+			case _V:
+				isV = true
 			}
 		case xml.EndElement:
 			if token.Name.Local == _RowPrefix {
@@ -286,6 +299,9 @@ func (rd *read) readToMapValue(v reflect.Value) (err error) {
 				return err
 			}
 		case xml.CharData:
+			if !isV {
+				break
+			}
 			trimedColumnName := strings.TrimRight(tempCell.R, _AllNumber)
 			var valStr string
 			if tempCell.T == _S {
@@ -304,6 +320,7 @@ func (rd *read) readToMapValue(v reflect.Value) (err error) {
 			v.SetMapIndex(reflect.ValueOf(title), val.Elem())
 			// log.Println("Key:", trimedColumnName, "Val:", valStr)
 			scaned = true
+			isV = false
 		}
 	}
 

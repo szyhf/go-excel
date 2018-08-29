@@ -26,6 +26,7 @@ const (
 	_Count       = "count"
 	_UniqueCount = "uniqueCount"
 	_C           = "c"
+	_V           = "v"
 	_RID         = "rId"
 
 	// workbook.xml.rels表中描述worksheet类型的类型枚举
