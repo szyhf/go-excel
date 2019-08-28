@@ -24,6 +24,8 @@ type Reader interface {
 	GetTitles() []string
 	// Read current row into a object
 	Read(v interface{}) error
+	// RawRow return current row data
+	RawRow() ([]string, error)
 	// Read all rows
 	// container: container should be ptr to slice or array.
 	ReadAll(container interface{}) error

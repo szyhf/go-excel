@@ -7,7 +7,7 @@ import (
 	"reflect"
 	"strings"
 
-	"github.com/szyhf/go-excel/internal/twenty_six"
+	twentysix "github.com/szyhf/go-excel/internal/twenty_six"
 
 	convert "github.com/szyhf/go-convert"
 )
@@ -405,4 +405,27 @@ func newBaseReaderByWorkSheetFile(cn *connect, rc io.ReadCloser) (*read, error) 
 	}
 
 	return rd, nil
+}
+
+func (rd *read) RawRow() ([]string, error) {
+	var res = []string{}
+	for eof := false; !eof; {
+		t, e := rd.decoder.Token()
+		if e == io.EOF {
+			eof = true
+		}
+		if e != nil {
+			return nil, e
+		}
+
+		switch token := t.(type) {
+		case xml.EndElement:
+			if token.Name.Local == _RowPrefix {
+				eof = true
+			}
+		case xml.CharData:
+			res = append(res, rd.connecter.getSharedString(convert.MustInt(string(token))))
+		}
+	}
+	return res, nil
 }
