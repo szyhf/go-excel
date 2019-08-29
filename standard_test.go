@@ -2,6 +2,7 @@ package excel_test
 
 import (
 	"encoding/json"
+	"fmt"
 	"io/ioutil"
 	"reflect"
 	"testing"
@@ -201,7 +202,10 @@ func TestReadStandard(t *testing.T) {
 	idx := 0
 	for rd.Next() {
 		var s Standard
-		rd.Read(&s)
+		if err := rd.Read(&s); err != nil {
+			fmt.Println(err)
+			return
+		}
 		expectStd := expectStandardList[idx]
 		if !reflect.DeepEqual(s, expectStd) {
 			t.Errorf("unexpect std at %d = \n%s", idx, convert.MustJsonPrettyString(expectStd))
@@ -235,7 +239,10 @@ func TestReadStandardIndex(t *testing.T) {
 	idx := 0
 	for rd.Next() {
 		var s Standard
-		rd.Read(&s)
+		if err := rd.Read(&s); err != nil {
+			fmt.Println(err)
+			return
+		}
 		expectStd := expectStandardList[idx]
 		if !reflect.DeepEqual(s, expectStd) {
 			t.Errorf("unexpect std at %d = \n%s", idx, convert.MustJsonPrettyString(expectStd))
@@ -386,7 +393,10 @@ func TestReadStandardMap(t *testing.T) {
 	idx := 0
 	for rd.Next() {
 		var m map[string]string
-		rd.Read(&m)
+		if err := rd.Read(&m); err != nil {
+			fmt.Println(err)
+			return
+		}
 
 		expectStdMap := expectStandardMapList[idx]
 		if !reflect.DeepEqual(m, expectStdMap) {

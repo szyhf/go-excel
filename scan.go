@@ -111,3 +111,8 @@ func sliceNextElem(v reflect.Value) reflect.Value {
 	v.Set(reflect.Append(v, reflect.Zero(elemType)))
 	return v.Index(v.Len() - 1)
 }
+
+// keep to ignore lint warning
+var (
+	_ = scanByDefault
+)

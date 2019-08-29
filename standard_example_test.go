@@ -20,7 +20,7 @@ func ExampleUnmarshalXLSX_struct() {
 		fmt.Printf("unexprect std list: %s", convert.MustJsonPrettyString(stdList))
 	}
 
-	fmt.Printf(convert.MustJsonString(stdList))
+	fmt.Print(convert.MustJsonString(stdList))
 
 	// output:
 	// [{"ID":1,"Name":"Andy","NamePtr":"Andy","Age":1,"Slice":[1,2],"Temp":{"Foo":"Andy"},"WantIgnored":""},{"ID":2,"Name":"Leo","NamePtr":"Leo","Age":2,"Slice":[2,3,4],"Temp":{"Foo":"Leo"},"WantIgnored":""},{"ID":3,"Name":"Ben","NamePtr":"Ben","Age":3,"Slice":[3,4,5,6],"Temp":{"Foo":"Ben"},"WantIgnored":""},{"ID":4,"Name":"Ming","NamePtr":"Ming","Age":4,"Slice":[1],"Temp":{"Foo":"Ming"},"WantIgnored":""}]
@@ -51,7 +51,10 @@ func ExampleReader_readStruct() {
 	idx := 0
 	for rd.Next() {
 		var s Standard
-		rd.Read(&s)
+		if err := rd.Read(&s); err != nil {
+			fmt.Println(err)
+			return
+		}
 		expectStd := expectStandardList[idx]
 		if !reflect.DeepEqual(s, expectStd) {
 			fmt.Printf("unexpect std at %d = \n%s", idx, convert.MustJsonPrettyString(expectStd))
@@ -228,7 +231,10 @@ func ExampleReader_readMap() {
 	idx := 0
 	for rd.Next() {
 		var m map[string]string
-		rd.Read(&m)
+		if err := rd.Read(&m); err != nil {
+			fmt.Println(err)
+			return
+		}
 
 		expectStdMap := expectStandardMapList[idx]
 		if !reflect.DeepEqual(m, expectStdMap) {

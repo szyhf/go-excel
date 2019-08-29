@@ -162,7 +162,7 @@ func (conn *connect) getSharedString(id int) string {
 	return conn.sharedStringPaths[id]
 }
 
-func (conn *connect) init() error {
+func (conn *connect) init() (err error) {
 	// Find file of "workbook.xml", "sharedString.xml" and files in worksheets
 	conn.worksheetFileMap = make(map[string]*zip.File)
 	for _, f := range conn.zipReader.File {
@@ -193,7 +193,6 @@ func (conn *connect) init() error {
 	if conn.worksheetFileMap == nil || len(conn.worksheetFileMap) == 0 {
 		return ErrWorkbookNotExist
 	}
-	var err error
 	// prepare workbook rels
 	err = conn.readWorkbookRels()
 	if err != nil {

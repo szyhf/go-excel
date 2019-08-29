@@ -7,9 +7,8 @@ import (
 	"reflect"
 	"strings"
 
-	"github.com/szyhf/go-excel/internal/twenty_six"
-
 	convert "github.com/szyhf/go-convert"
+	twentysix "github.com/szyhf/go-excel/internal/twenty_six"
 )
 
 // read is default implement of reader
@@ -311,10 +310,7 @@ func (rd *read) readToMapValue(v reflect.Value) (err error) {
 				valStr = string(token)
 			}
 			val := reflect.New(v.Type().Elem())
-			err := scan(valStr, val.Interface())
-			if err != nil {
-				// skip
-			}
+			_ = scan(valStr, val.Interface())
 			columnIndex := twentysix.ToDecimalism(trimedColumnName)
 			title := rd.title.srcMap[columnIndex]
 			v.SetMapIndex(reflect.ValueOf(title), val.Elem())
@@ -382,7 +378,7 @@ func newBaseReaderByWorkSheetFile(cn *connect, rc io.ReadCloser) (*read, error) 
 		}
 	}(decoder)
 
-	func(decoder *xml.Decoder) {
+	err := func(decoder *xml.Decoder) error {
 		// use func block to break to 'for' range
 		for t, err := decoder.Token(); err == nil; t, err = decoder.Token() {
 			// log.Printf("%+v\n\n", t)
@@ -390,13 +386,20 @@ func newBaseReaderByWorkSheetFile(cn *connect, rc io.ReadCloser) (*read, error) 
 			case xml.StartElement:
 				switch token.Name.Local {
 				case _SheetData:
-					return
+					return nil
 				default:
-					decoder.Skip()
+					if err := decoder.Skip(); err != nil {
+						return err
+					}
 				}
 			}
 		}
+		return nil
 	}(decoder)
+
+	if err != nil {
+		return nil, err
+	}
 
 	rd := &read{
 		connecter:          cn,

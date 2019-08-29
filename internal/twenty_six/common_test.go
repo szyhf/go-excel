@@ -23,8 +23,7 @@ func TestCharOfNum(t *testing.T) {
 }
 
 func TestToDecimalism(t *testing.T) {
-	var s string
-	s = "A"
+	s := "A"
 	if ToDecimalism(s) != 0 {
 		println(s, "=", ToDecimalism(s))
 		t.Fail()
@@ -73,7 +72,7 @@ func TestToDecimalism(t *testing.T) {
 
 func TestToTwentySixString(t *testing.T) {
 	// it's not needed.
-	return
+
 	// if toTwentySixString(0) != "A" {
 	// 	t.Fail()
 	// }

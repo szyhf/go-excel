@@ -27,7 +27,7 @@ const (
 	_UniqueCount = "uniqueCount"
 	_C           = "c"
 	_V           = "v"
-	_RID         = "rId"
+	// _RID         = "rId"
 
 	// workbook.xml.rels表中描述worksheet类型的类型枚举
 	_RelTypeWorkSheet = "http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet"

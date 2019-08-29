@@ -40,7 +40,7 @@ func readSharedStringsXML(rc io.ReadCloser) []string {
 					slc = make([]string, count)
 				}
 			default:
-				decoder.Skip()
+				_ = decoder.Skip()
 			}
 		case xml.EndElement:
 			switch token.Name.Local {

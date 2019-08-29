@@ -50,3 +50,9 @@ func pow(x, y int) int {
 	}
 	return res
 }
+
+// keep to ignore lint warning
+var (
+	_ = toTwentySixString
+	_ = pow
+)

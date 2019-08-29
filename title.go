@@ -7,8 +7,7 @@ import (
 	"strings"
 
 	convert "github.com/szyhf/go-convert"
-
-	"github.com/szyhf/go-excel/internal/twenty_six"
+	twentysix "github.com/szyhf/go-excel/internal/twenty_six"
 )
 
 type titleRow struct {
