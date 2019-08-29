@@ -4,6 +4,7 @@ import (
 	"encoding/xml"
 	"fmt"
 	"io"
+	"log"
 	"reflect"
 	"strings"
 
@@ -43,6 +44,10 @@ func (rd *read) Read(i interface{}) error {
 	case reflect.Ptr:
 		t = t.Elem()
 		switch t.Kind() {
+		case reflect.Slice,
+			reflect.Array:
+			v := reflect.ValueOf(i)
+			return rd.readToSlice(t, v)
 		case reflect.Struct:
 			v := reflect.ValueOf(i)
 			return rd.readToStruct(t, v)
@@ -125,6 +130,23 @@ func (rd *read) ReadAll(container interface{}) error {
 				}
 			}
 		}
+	case reflect.Slice,
+		reflect.Array:
+		slcVal := val.Elem()
+		for rd.Next() {
+			elmVal := sliceNextElem(slcVal)
+			for err = ErrEmptyRow; err == ErrEmptyRow; {
+				err = rd.readToSlice(elemTyp, elmVal)
+			}
+			if err != nil {
+				// remove the last row.
+				slcVal.SetLen(slcVal.Len() - 1)
+				if err != io.EOF {
+					// EOF is normal.
+					return err
+				}
+			}
+		}
 	}
 
 	return nil
@@ -174,6 +196,18 @@ func (rd *read) readToMap(t reflect.Type, v reflect.Value) error {
 		}
 	}
 	return err
+}
+
+func (rd *read) readToSlice(t reflect.Type, v reflect.Value) (err error) {
+	if v.Kind() == reflect.Ptr {
+		v = v.Elem()
+	}
+	v.Set(reflect.MakeSlice(t, len(rd.title.dstMap), len(rd.title.dstMap)))
+
+	for err = ErrEmptyRow; err == ErrEmptyRow; {
+		err = rd.readToSliceValue(v)
+	}
+	return
 }
 
 func (rd *read) readToValue(s *schema, v reflect.Value) (err error) {
@@ -314,6 +348,78 @@ func (rd *read) readToMapValue(v reflect.Value) (err error) {
 			columnIndex := twentysix.ToDecimalism(trimedColumnName)
 			title := rd.title.srcMap[columnIndex]
 			v.SetMapIndex(reflect.ValueOf(title), val.Elem())
+			// log.Println("Key:", trimedColumnName, "Val:", valStr)
+			scaned = true
+			isV = false
+		}
+	}
+
+	if err != nil {
+		return err
+	}
+	return io.EOF
+}
+
+func (rd *read) readToSliceValue(v reflect.Value) (err error) {
+	tempCell := &xlsxC{}
+	scaned := false
+	defer func() {
+		if !scaned && err == nil {
+			err = ErrEmptyRow
+		}
+	}()
+	isV := false
+	for t, e := rd.decoder.Token(); e == nil; t, e = rd.decoder.Token() {
+		switch token := t.(type) {
+		case xml.StartElement:
+			switch token.Name.Local {
+			case _C:
+				tempCell.R = ""
+				tempCell.T = ""
+				for _, a := range token.Attr {
+					switch a.Name.Local {
+					case _R:
+						tempCell.R = a.Value
+					case _T:
+						tempCell.T = a.Value
+					}
+				}
+			case _V:
+				isV = true
+			}
+		case xml.EndElement:
+			if token.Name.Local == _RowPrefix {
+				// end of current row
+				return err
+			}
+		case xml.CharData:
+			if !isV {
+				break
+			}
+			trimedColumnName := strings.TrimRight(tempCell.R, _AllNumber)
+			var valStr string
+			if tempCell.T == _S {
+				// get string from shared
+				valStr = rd.connecter.getSharedString(convert.MustInt(string(token)))
+			} else {
+				valStr = string(token)
+			}
+
+			columnIndex := twentysix.ToDecimalism(trimedColumnName)
+			if columnIndex < v.Len() {
+				val := v.Index(columnIndex)
+				if val.Type().Kind() == reflect.Ptr {
+					val.Set(reflect.New(val.Type().Elem()))
+					_ = scan(valStr, val.Interface())
+				} else if val.CanAddr() {
+					_ = scan(valStr, val.Addr().Interface())
+				} else {
+					log.Printf("??")
+				}
+
+			} else {
+				log.Printf("columnIndex(%d) < v.Len(%d)", columnIndex, v.Len())
+			}
 			// log.Println("Key:", trimedColumnName, "Val:", valStr)
 			scaned = true
 			isV = false

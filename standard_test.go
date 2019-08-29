@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
+	"log"
 	"reflect"
 	"testing"
 
@@ -12,7 +13,7 @@ import (
 )
 
 func init() {
-	// log.SetFlags(log.Llongfile)
+	log.SetFlags(log.Llongfile)
 }
 
 func strPtr(s string) *string {
@@ -133,6 +134,37 @@ var expectStandardMapList = []map[string]string{
 		"AgeOf":           "4",
 		"Slice":           "1",
 		"UnmarshalString": "{\"Foo\":\"Ming\"}",
+	},
+}
+
+var expectStandardSliceList = [][]string{
+	[]string{
+		"1",
+		"Andy",
+		"1",
+		"1|2",
+		"{\"Foo\":\"Andy\"}",
+	},
+	[]string{
+		"2",
+		"Leo",
+		"2",
+		"2|3|4",
+		"{\"Foo\":\"Leo\"}",
+	},
+	[]string{
+		"3",
+		"Ben",
+		"3",
+		"3|4|5|6",
+		"{\"Foo\":\"Ben\"}",
+	},
+	[]string{
+		"4",
+		"Ming",
+		"4",
+		"1",
+		"{\"Foo\":\"Ming\"}",
 	},
 }
 
@@ -437,5 +469,77 @@ func TestReadStandardSliceMap(t *testing.T) {
 
 	if !reflect.DeepEqual(expectStandardMapList, stdMapList) {
 		t.Errorf("unexpect stdlist: \n%s", convert.MustJsonPrettyString(stdMapList))
+	}
+}
+
+func TestReadStandardSlice(t *testing.T) {
+	conn := excel.NewConnecter()
+	err := conn.Open(filePath)
+	if err != nil {
+		t.Error(err)
+		return
+	}
+	defer conn.Close()
+
+	// Generate an new reader of a sheet
+	// sheetNamer: if sheetNamer is string, will use sheet as sheet name.
+	//             if sheetNamer is int, will i'th sheet in the workbook, be careful the hidden sheet is counted. i ∈ [1,+inf]
+	//             if sheetNamer is a object implements `GetXLSXSheetName()string`, the return value will be used.
+	//             otherwise, will use sheetNamer as struct and reflect for it's name.
+	// 			   if sheetNamer is a slice, the type of element will be used to infer like before.
+	rd, err := conn.NewReader(stdSheetName)
+	if err != nil {
+		t.Error(err)
+		return
+	}
+	defer rd.Close()
+
+	idx := 0
+	for rd.Next() {
+		var l []string
+		if err := rd.Read(&l); err != nil {
+			fmt.Println(err)
+			return
+		}
+
+		expectStdList := expectStandardSliceList[idx]
+		if !reflect.DeepEqual(l, expectStdList) {
+			t.Errorf("unexpect std at %d %s = \n%s", idx, convert.MustJsonPrettyString(l), convert.MustJsonPrettyString(expectStdList))
+		}
+		idx++
+	}
+}
+
+func TestReadStandardSliceList(t *testing.T) {
+	conn := excel.NewConnecter()
+	err := conn.Open(filePath)
+	if err != nil {
+		t.Error(err)
+		return
+	}
+	defer conn.Close()
+
+	// Generate an new reader of a sheet
+	// sheetNamer: if sheetNamer is string, will use sheet as sheet name.
+	//             if sheetNamer is int, will i'th sheet in the workbook, be careful the hidden sheet is counted. i ∈ [1,+inf]
+	//             if sheetNamer is a object implements `GetXLSXSheetName()string`, the return value will be used.
+	//             otherwise, will use sheetNamer as struct and reflect for it's name.
+	// 			   if sheetNamer is a slice, the type of element will be used to infer like before.
+	rd, err := conn.NewReader(stdSheetName)
+	if err != nil {
+		t.Error(err)
+		return
+	}
+	defer rd.Close()
+
+	var stdList [][]string
+	err = rd.ReadAll(&stdList)
+	if err != nil {
+		t.Error(err)
+		return
+	}
+
+	if !reflect.DeepEqual(expectStandardSliceList, stdList) {
+		t.Errorf("unexpect stdlist: \n%s", convert.MustJsonPrettyString(stdList))
 	}
 }

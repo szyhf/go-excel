@@ -116,13 +116,21 @@ func defaultUsage(){
 	// will try to unmarshal to target type
 	// but will skip if unmarshal failed.
 
+	// var stdSliceList [][]string
+	// err = rd.ReadAll(&stdSliceList)
+	// if err != nil {
+	//   panic(err)
+	//	 return
+	// }
+	// fmt.Printf("%+v",stdSliceList)
+
 	// var stdMapList []map[string]string
 	// err = rd.ReadAll(&stdMapList)
 	// if err != nil {
 	//   panic(err)
 	//	 return
 	// }
-	// fmt.Printf("%+v",stdList)
+	// fmt.Printf("%+v",stdMapList)
 
 	// Using binary instead of file.
 	// xlsxData, err := ioutil.ReadFile(filePath)
@@ -205,6 +213,7 @@ Will return error if clomun title not exist in excel.
 + Read a cell of a row, fix the empty cell. √
 + Fill string cell with value of shared string xml. √
 + Can set the column name row, default is the first row. √
++ Read a row into a slice. √
 + Read a row to a struct by column name. √
 + Read a row into a map with string key. √
 + Read a row into a map by primary key.
