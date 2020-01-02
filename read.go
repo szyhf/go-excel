@@ -416,7 +416,7 @@ func (rd *read) readToSliceValue(v reflect.Value) (err error) {
 					return fmt.Errorf("unexpect type of %T, is not ptr and can't addr", v.Interface())
 				}
 
-			} else {
+				// } else {
 				// log.Printf("columnIndex(%d) < v.Len(%d)", columnIndex, v.Len())
 			}
 			// log.Println("Key:", trimedColumnName, "Val:", valStr)
