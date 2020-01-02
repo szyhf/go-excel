@@ -14,5 +14,6 @@
 .glide/
 
 vendor/*
+.vscode/
 
 ~*.xlsx
