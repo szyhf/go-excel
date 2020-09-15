@@ -146,6 +146,8 @@ func defaultUsage(){
 
 > See the `simple.xlsx`.`Standard` in `testdata` and code in `./standard_test.go` and `./standard_example_test.go` for details.
 
+> While read into a `[]string`, row of title can have duplicated titles, otherwise `ErrDuplicatedTitles` will be return.
+
 ## Advance | 进阶用法
 
 The advance usage can make more options.

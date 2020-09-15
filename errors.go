@@ -19,4 +19,6 @@ var (
 	ErrNoRow = errors.New("no row")
 	// ErrScanNil means scan nil.
 	ErrScanNil = errors.New("scan(nil)")
+	// ErrDuplicatedTitles means the row of title has duplicated value and can not read into a map or struct since it need unique keys.
+	ErrDuplicatedTitles = errors.New("title row has duplicated key and can not read into a map or struct")
 )

@@ -5,4 +5,5 @@ var (
 	stdSheetName   = "Standard"
 	advSheetName   = "Advance"
 	advSheetSuffix = ".suffix"
+	dupSheetName   = "DuplicatedTitle"
 )

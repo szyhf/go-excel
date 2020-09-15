@@ -159,6 +159,10 @@ func (rd *read) GetTitles() []string {
 }
 
 func (rd *read) readToStruct(t reflect.Type, v reflect.Value) error {
+	if len(rd.title.dstMap) != len(rd.title.titles) {
+		return ErrDuplicatedTitles
+	}
+
 	s := rd.getSchame(t)
 	if v.IsNil() {
 		v.Set(reflect.New(t))
@@ -174,6 +178,10 @@ func (rd *read) readToStruct(t reflect.Type, v reflect.Value) error {
 
 // v should be value of map[string]string
 func (rd *read) readToMap(t reflect.Type, v reflect.Value) error {
+	if len(rd.title.dstMap) != len(rd.title.titles) {
+		return ErrDuplicatedTitles
+	}
+
 	if v.Kind() == reflect.Ptr {
 		v = v.Elem()
 	}
@@ -201,7 +209,9 @@ func (rd *read) readToSlice(t reflect.Type, v reflect.Value) (err error) {
 	if v.Kind() == reflect.Ptr {
 		v = v.Elem()
 	}
-	v.Set(reflect.MakeSlice(t, len(rd.title.dstMap), len(rd.title.dstMap)))
+	// if use rd.title.dstMap as len to slice, the titles with duplcated key will be ignored.
+	// in slice case, ignore the duplicated key and read all cells is ok.
+	v.Set(reflect.MakeSlice(t, len(rd.title.titles), len(rd.title.titles)))
 
 	for err = ErrEmptyRow; err == ErrEmptyRow; {
 		err = rd.readToSliceValue(v)
@@ -210,6 +220,10 @@ func (rd *read) readToSlice(t reflect.Type, v reflect.Value) (err error) {
 }
 
 func (rd *read) readToValue(s *schema, v reflect.Value) (err error) {
+	if len(rd.title.dstMap) != len(rd.title.titles) {
+		return ErrDuplicatedTitles
+	}
+
 	tempCell := &xlsxC{}
 	fieldsMap, err := rd.title.MapToFields(s)
 	if err != nil {
@@ -299,6 +313,10 @@ func (rd *read) readToValue(s *schema, v reflect.Value) (err error) {
 }
 
 func (rd *read) readToMapValue(v reflect.Value) (err error) {
+	if len(rd.title.dstMap) != len(rd.title.titles) {
+		return ErrDuplicatedTitles
+	}
+
 	tempCell := &xlsxC{}
 	scaned := false
 	defer func() {
