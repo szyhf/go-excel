@@ -8,4 +8,6 @@ type xlsxC struct {
 	R string `xml:"r,attr"`           // Cell ID, e.g. A1
 	T string `xml:"t,attr,omitempty"` // Type.
 	V string `xml:"v,omitempty"`      // Value
+
+	columnIndex int // cache the columnIndex
 }

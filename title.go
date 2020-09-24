@@ -37,9 +37,15 @@ func newRowAsMap(rd *read) (r *titleRow, err error) {
 	for t, err := rd.decoder.Token(); err == nil; t, err = rd.decoder.Token() {
 		switch token := t.(type) {
 		case xml.StartElement:
-			if token.Name.Local == _C {
+			switch token.Name.Local {
+			case _RowPrefix:
+				// start of row
+			case _C:
+				// start of row.cell
 				tempCell.R = ""
 				tempCell.T = ""
+				tempCell.V = ""
+				tempCell.columnIndex = -1
 				for _, a := range token.Attr {
 					switch a.Name.Local {
 					case _R:
@@ -48,26 +54,40 @@ func newRowAsMap(rd *read) (r *titleRow, err error) {
 						tempCell.T = a.Value
 					}
 				}
+			case _V:
+				// start of row.cell.value
 			}
 		case xml.EndElement:
-			if token.Name.Local == _RowPrefix {
-				// 结束当前行
+			switch token.Name.Local {
+			case _RowPrefix:
+				// end of row
 				r.typeFieldMap = make(map[reflect.Type]map[int][]*fieldConfig)
 				return r, nil
+			case _C:
+				// end of row.cell
+				for i := len(r.titles); i < tempCell.columnIndex; i++ {
+					// fill the skipped empty cell with blank
+					const blankText = ""
+					r.dstMap[blankText] = i
+					r.srcMap[i] = blankText
+					r.titles = append(r.titles, blankText)
+				}
+				r.dstMap[tempCell.V] = tempCell.columnIndex
+				r.srcMap[tempCell.columnIndex] = tempCell.V
+				r.titles = append(r.titles, tempCell.V)
+			case _V:
+				// end of row.cell.value
 			}
 		case xml.CharData:
 			trimedColumnName := strings.TrimRight(tempCell.R, _AllNumber)
-			columnIndex := twentysix.ToDecimalism(trimedColumnName)
-			var str string
+			tempCell.columnIndex = twentysix.ToDecimalism(trimedColumnName)
+
 			if tempCell.T == _S {
 				// get string from shared
-				str = rd.connecter.getSharedString(convert.MustInt(string(token)))
+				tempCell.V = rd.connecter.getSharedString(convert.MustInt(string(token)))
 			} else {
-				str = string(token)
+				tempCell.V = string(token)
 			}
-			r.dstMap[str] = columnIndex
-			r.srcMap[columnIndex] = str
-			r.titles = append(r.titles, str)
 		}
 	}
 

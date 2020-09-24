@@ -22,10 +22,12 @@ type DuplicatedTitle struct {
 var expectDuplicatedTitleSliceList = [][]string{
 	[]string{
 		"Value1",
+		"EmptyTitleValue1",
 		"Value2",
 	},
 	[]string{
 		"Value3",
+		"EmptyTitleValue2",
 		"Value2",
 	},
 }
