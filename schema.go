@@ -17,6 +17,38 @@ const (
 	reqTag     = "req"
 )
 
+type FieldConfig struct {
+	// The config equals to tag: column
+	ColumnName string
+	// The config equals to tag: default
+	DefaultValue string
+	// The config equals to tag: split
+	Split string
+	// The config equals to tag: nil
+	// if cell.value == NilValue, will skip fc scan
+	NilValue string
+	// The config equals to tag: req
+	// panic if reuqired fc column but not set
+	IsRequired bool
+	// The config equals to tag: -
+	Ignore bool
+}
+
+func (this *FieldConfig) froze(fieldIdx int) *fieldConfig {
+	return &fieldConfig{
+		FieldIndex:   fieldIdx,
+		ColumnName:   this.ColumnName,
+		DefaultValue: this.DefaultValue,
+		Split:        this.Split,
+		NilValue:     this.NilValue,
+		IsRequired:   this.IsRequired,
+	}
+}
+
+type ExcelFiledConfiger interface {
+	GetXLSXFieldConfigs() map[string]FieldConfig
+}
+
 type fieldConfig struct {
 	FieldIndex int
 	// use ptr in order to know if configed.
@@ -76,9 +108,33 @@ func newSchema(t reflect.Type) *schema {
 	s := &schema{
 		Fields: make([]*fieldConfig, 0, t.NumField()),
 	}
+
+	// if implement the ExcelFiledConfiger
+	var selfDefinedCfgs map[string]FieldConfig
+	v := reflect.New(t)
+	if v.CanInterface() {
+		if i, ok := v.Interface().(ExcelFiledConfiger); ok {
+			selfDefinedCfgs = i.GetXLSXFieldConfigs()
+		}
+	} else if vElem := v.Elem(); vElem.CanInterface() {
+		if i, ok := vElem.Interface().(ExcelFiledConfiger); ok {
+			selfDefinedCfgs = i.GetXLSXFieldConfigs()
+		}
+	}
+
 	for i := 0; i < t.NumField(); i++ {
 		field := t.Field(i)
-		if value, ok := field.Tag.Lookup(tagIdentify); ok {
+		if selfCfg, ok := selfDefinedCfgs[field.Name]; ok {
+			// Use self defiend config first
+			if !selfCfg.Ignore {
+				frzCfg := selfCfg.froze(i)
+				if frzCfg.ColumnName == "" {
+					frzCfg.ColumnName = field.Name
+				}
+				s.Fields = append(s.Fields, frzCfg)
+			}
+		} else if value, ok := field.Tag.Lookup(tagIdentify); ok {
+			// Use tag second
 			if value != ignoreTag {
 				fieldCnf := praseTagValue(value)
 				fieldCnf.FieldIndex = i

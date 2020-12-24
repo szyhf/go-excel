@@ -206,6 +206,10 @@ Will not skip scan value in the cell equals to this 'nil value'
 
 Will return error if clomun title not exist in excel.
 
+## XLSX Field Config | 字段的解析配置
+
+Sometimes it’s a bit cumbersome to deal with escape characters (exp. #6), so implement the interface of `GetXLSXFieldConfigs() map[string]FieldConfig` will take a high priority than `tag` to provide the field config, more info to see the test file.
+
 ## RoadMap | 开发计划
 
 + Read xlsx file and got the expect xml. √
