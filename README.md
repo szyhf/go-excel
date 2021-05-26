@@ -19,12 +19,12 @@ Here is a simple example.
 
 Assume you have a xlsx file like below:
 
-|ID|NameOf|Age|Slice|UnmarshalString|
-|-|-|-|-|-|
-|1|Andy|1|1\|2|{"Foo":"Andy"}|
-|2|Leo|2|2\|3\|4|{"Foo":"Leo"}|
-|3|Ben|3|3\|4\|5\|6|{"Foo":"Ben"}|
-|4|Ming|4|1|{"Foo":"Ming"}|
+| ID  | NameOf | Age | Slice      | UnmarshalString |
+| --- | ------ | --- | ---------- | --------------- |
+| 1   | Andy   | 1   | 1\|2       | {"Foo":"Andy"}  |
+| 2   | Leo    | 2   | 2\|3\|4    | {"Foo":"Leo"}   |
+| 3   | Ben    | 3   | 3\|4\|5\|6 | {"Foo":"Ben"}   |
+| 4   | Ming   | 4   | 1          | {"Foo":"Ming"}  |
 
 + the first row is the title row.
 + other row is the data row.
@@ -46,6 +46,8 @@ type Standard struct {
 	Slice   []int `xlsx:"split(|)"`
 	// *Temp implement the `encoding.BinaryUnmarshaler`
 	Temp    *Temp `xlsx:"column(UnmarshalString)"`
+	// support default encoding of json
+	TempEncoding *TempEncoding `xlsx:"column(UnmarshalString);encoding(json)"`
 	// use '-' to ignore.
 	Ignored string `xlsx:"-"`
 }
@@ -205,6 +207,10 @@ Will not skip scan value in the cell equals to this 'nil value'
 ### req
 
 Will return error if clomun title not exist in excel.
+
+### encoding
+
+Will decode the string value into the field can be unmarshal by the encoding type, currently, only `json` is supported, will use `encoding/json` package.
 
 ## XLSX Field Config | 字段的解析配置
 

@@ -30,6 +30,9 @@ var expectStandardList = []Standard{
 		Temp: &Temp{
 			Foo: "Andy",
 		},
+		TempEncoding: &TempEncoding{
+			Foo: "Andy",
+		},
 	},
 	{
 		ID:      2,
@@ -38,6 +41,9 @@ var expectStandardList = []Standard{
 		Age:     2,
 		Slice:   []int{2, 3, 4},
 		Temp: &Temp{
+			Foo: "Leo",
+		},
+		TempEncoding: &TempEncoding{
 			Foo: "Leo",
 		},
 	},
@@ -50,6 +56,9 @@ var expectStandardList = []Standard{
 		Temp: &Temp{
 			Foo: "Ben",
 		},
+		TempEncoding: &TempEncoding{
+			Foo: "Ben",
+		},
 	},
 	{
 		ID:      4,
@@ -58,6 +67,9 @@ var expectStandardList = []Standard{
 		Age:     4,
 		Slice:   []int{1},
 		Temp: &Temp{
+			Foo: "Ming",
+		},
+		TempEncoding: &TempEncoding{
 			Foo: "Ming",
 		},
 	},
@@ -73,6 +85,9 @@ var expectStandardPtrList = []*Standard{
 		Temp: &Temp{
 			Foo: "Andy",
 		},
+		TempEncoding: &TempEncoding{
+			Foo: "Andy",
+		},
 	},
 	{
 		ID:      2,
@@ -81,6 +96,9 @@ var expectStandardPtrList = []*Standard{
 		Age:     2,
 		Slice:   []int{2, 3, 4},
 		Temp: &Temp{
+			Foo: "Leo",
+		},
+		TempEncoding: &TempEncoding{
 			Foo: "Leo",
 		},
 	},
@@ -93,6 +111,9 @@ var expectStandardPtrList = []*Standard{
 		Temp: &Temp{
 			Foo: "Ben",
 		},
+		TempEncoding: &TempEncoding{
+			Foo: "Ben",
+		},
 	},
 	{
 		ID:      4,
@@ -101,6 +122,9 @@ var expectStandardPtrList = []*Standard{
 		Age:     4,
 		Slice:   []int{1},
 		Temp: &Temp{
+			Foo: "Ming",
+		},
+		TempEncoding: &TempEncoding{
 			Foo: "Ming",
 		},
 	},
@@ -181,6 +205,8 @@ type Standard struct {
 	// split means to split the string into slice by the `|`
 	Slice []int `xlsx:"split(|)"`
 	Temp  *Temp `xlsx:"column(UnmarshalString)"`
+	// support default encoding of json
+	TempEncoding *TempEncoding `xlsx:"column(UnmarshalString);encoding(json)"`
 	// use '-' to ignore.
 	WantIgnored string `xlsx:"-"`
 }
@@ -192,6 +218,9 @@ type Standard struct {
 type Temp struct {
 	Foo string
 }
+
+// Test decode tag
+type TempEncoding Temp
 
 func (tmp *Temp) UnmarshalBinary(d []byte) error {
 	return json.Unmarshal(d, tmp)

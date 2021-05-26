@@ -32,6 +32,10 @@ func (StandardFieldConfig) GetXLSXFieldConfigs() map[string]excel.FieldConfig {
 		"Temp": {
 			ColumnName: "UnmarshalString",
 		},
+		"TempEncoding": {
+			ColumnName: "UnmarshalString",
+			Encoding:   "json",
+		},
 		"WantIgnored": {
 			Ignore: true,
 		},
@@ -48,6 +52,9 @@ var expectStandardFieldConfigList = []StandardFieldConfig{
 		Temp: &Temp{
 			Foo: "Andy",
 		},
+		TempEncoding: &TempEncoding{
+			Foo: "Andy",
+		},
 	},
 	{
 		ID:      2,
@@ -56,6 +63,9 @@ var expectStandardFieldConfigList = []StandardFieldConfig{
 		Age:     2,
 		Slice:   []int{2, 3, 4},
 		Temp: &Temp{
+			Foo: "Leo",
+		},
+		TempEncoding: &TempEncoding{
 			Foo: "Leo",
 		},
 	},
@@ -68,6 +78,9 @@ var expectStandardFieldConfigList = []StandardFieldConfig{
 		Temp: &Temp{
 			Foo: "Ben",
 		},
+		TempEncoding: &TempEncoding{
+			Foo: "Ben",
+		},
 	},
 	{
 		ID:      4,
@@ -76,6 +89,9 @@ var expectStandardFieldConfigList = []StandardFieldConfig{
 		Age:     4,
 		Slice:   []int{1},
 		Temp: &Temp{
+			Foo: "Ming",
+		},
+		TempEncoding: &TempEncoding{
 			Foo: "Ming",
 		},
 	},

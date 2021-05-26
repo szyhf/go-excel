@@ -23,7 +23,7 @@ func ExampleUnmarshalXLSX_struct() {
 	fmt.Print(convert.MustJsonString(stdList))
 
 	// output:
-	// [{"ID":1,"Name":"Andy","NamePtr":"Andy","Age":1,"Slice":[1,2],"Temp":{"Foo":"Andy"},"WantIgnored":""},{"ID":2,"Name":"Leo","NamePtr":"Leo","Age":2,"Slice":[2,3,4],"Temp":{"Foo":"Leo"},"WantIgnored":""},{"ID":3,"Name":"Ben","NamePtr":"Ben","Age":3,"Slice":[3,4,5,6],"Temp":{"Foo":"Ben"},"WantIgnored":""},{"ID":4,"Name":"Ming","NamePtr":"Ming","Age":4,"Slice":[1],"Temp":{"Foo":"Ming"},"WantIgnored":""}]
+	// [{"ID":1,"Name":"Andy","NamePtr":"Andy","Age":1,"Slice":[1,2],"Temp":{"Foo":"Andy"},"TempEncoding":{"Foo":"Andy"},"WantIgnored":""},{"ID":2,"Name":"Leo","NamePtr":"Leo","Age":2,"Slice":[2,3,4],"Temp":{"Foo":"Leo"},"TempEncoding":{"Foo":"Leo"},"WantIgnored":""},{"ID":3,"Name":"Ben","NamePtr":"Ben","Age":3,"Slice":[3,4,5,6],"Temp":{"Foo":"Ben"},"TempEncoding":{"Foo":"Ben"},"WantIgnored":""},{"ID":4,"Name":"Ming","NamePtr":"Ming","Age":4,"Slice":[1],"Temp":{"Foo":"Ming"},"TempEncoding":{"Foo":"Ming"},"WantIgnored":""}]
 }
 
 func ExampleReader_readStruct() {
@@ -64,10 +64,10 @@ func ExampleReader_readStruct() {
 	}
 
 	// output:
-	//0 => {"ID":1,"Name":"Andy","NamePtr":"Andy","Age":1,"Slice":[1,2],"Temp":{"Foo":"Andy"},"WantIgnored":""}
-	// 1 => {"ID":2,"Name":"Leo","NamePtr":"Leo","Age":2,"Slice":[2,3,4],"Temp":{"Foo":"Leo"},"WantIgnored":""}
-	// 2 => {"ID":3,"Name":"Ben","NamePtr":"Ben","Age":3,"Slice":[3,4,5,6],"Temp":{"Foo":"Ben"},"WantIgnored":""}
-	// 3 => {"ID":4,"Name":"Ming","NamePtr":"Ming","Age":4,"Slice":[1],"Temp":{"Foo":"Ming"},"WantIgnored":""}
+	// 0 => {"ID":1,"Name":"Andy","NamePtr":"Andy","Age":1,"Slice":[1,2],"Temp":{"Foo":"Andy"},"TempEncoding":{"Foo":"Andy"},"WantIgnored":""}
+	// 1 => {"ID":2,"Name":"Leo","NamePtr":"Leo","Age":2,"Slice":[2,3,4],"Temp":{"Foo":"Leo"},"TempEncoding":{"Foo":"Leo"},"WantIgnored":""}
+	// 2 => {"ID":3,"Name":"Ben","NamePtr":"Ben","Age":3,"Slice":[3,4,5,6],"Temp":{"Foo":"Ben"},"TempEncoding":{"Foo":"Ben"},"WantIgnored":""}
+	// 3 => {"ID":4,"Name":"Ming","NamePtr":"Ming","Age":4,"Slice":[1],"Temp":{"Foo":"Ming"},"TempEncoding":{"Foo":"Ming"},"WantIgnored":""}
 }
 
 func ExampleReader_readAllSliceStruct() {
@@ -105,7 +105,7 @@ func ExampleReader_readAllSliceStruct() {
 	fmt.Println(convert.MustJsonString(stdList))
 
 	// output:
-	// [{"ID":1,"Name":"Andy","NamePtr":"Andy","Age":1,"Slice":[1,2],"Temp":{"Foo":"Andy"},"WantIgnored":""},{"ID":2,"Name":"Leo","NamePtr":"Leo","Age":2,"Slice":[2,3,4],"Temp":{"Foo":"Leo"},"WantIgnored":""},{"ID":3,"Name":"Ben","NamePtr":"Ben","Age":3,"Slice":[3,4,5,6],"Temp":{"Foo":"Ben"},"WantIgnored":""},{"ID":4,"Name":"Ming","NamePtr":"Ming","Age":4,"Slice":[1],"Temp":{"Foo":"Ming"},"WantIgnored":""}]
+	// [{"ID":1,"Name":"Andy","NamePtr":"Andy","Age":1,"Slice":[1,2],"Temp":{"Foo":"Andy"},"TempEncoding":{"Foo":"Andy"},"WantIgnored":""},{"ID":2,"Name":"Leo","NamePtr":"Leo","Age":2,"Slice":[2,3,4],"Temp":{"Foo":"Leo"},"TempEncoding":{"Foo":"Leo"},"WantIgnored":""},{"ID":3,"Name":"Ben","NamePtr":"Ben","Age":3,"Slice":[3,4,5,6],"Temp":{"Foo":"Ben"},"TempEncoding":{"Foo":"Ben"},"WantIgnored":""},{"ID":4,"Name":"Ming","NamePtr":"Ming","Age":4,"Slice":[1],"Temp":{"Foo":"Ming"},"TempEncoding":{"Foo":"Ming"},"WantIgnored":""}]
 }
 
 func ExampleUnmarshalXLSX_ptr() {
@@ -121,7 +121,7 @@ func ExampleUnmarshalXLSX_ptr() {
 	fmt.Println(convert.MustJsonString(stdList))
 
 	// output:
-	// [{"ID":1,"Name":"Andy","NamePtr":"Andy","Age":1,"Slice":[1,2],"Temp":{"Foo":"Andy"},"WantIgnored":""},{"ID":2,"Name":"Leo","NamePtr":"Leo","Age":2,"Slice":[2,3,4],"Temp":{"Foo":"Leo"},"WantIgnored":""},{"ID":3,"Name":"Ben","NamePtr":"Ben","Age":3,"Slice":[3,4,5,6],"Temp":{"Foo":"Ben"},"WantIgnored":""},{"ID":4,"Name":"Ming","NamePtr":"Ming","Age":4,"Slice":[1],"Temp":{"Foo":"Ming"},"WantIgnored":""}]
+	// [{"ID":1,"Name":"Andy","NamePtr":"Andy","Age":1,"Slice":[1,2],"Temp":{"Foo":"Andy"},"TempEncoding":{"Foo":"Andy"},"WantIgnored":""},{"ID":2,"Name":"Leo","NamePtr":"Leo","Age":2,"Slice":[2,3,4],"Temp":{"Foo":"Leo"},"TempEncoding":{"Foo":"Leo"},"WantIgnored":""},{"ID":3,"Name":"Ben","NamePtr":"Ben","Age":3,"Slice":[3,4,5,6],"Temp":{"Foo":"Ben"},"TempEncoding":{"Foo":"Ben"},"WantIgnored":""},{"ID":4,"Name":"Ming","NamePtr":"Ming","Age":4,"Slice":[1],"Temp":{"Foo":"Ming"},"TempEncoding":{"Foo":"Ming"},"WantIgnored":""}]
 }
 
 func ExampleReader_readAllSlicePtr() {
@@ -159,7 +159,7 @@ func ExampleReader_readAllSlicePtr() {
 	fmt.Println(convert.MustJsonString(stdList))
 
 	// output:
-	// [{"ID":1,"Name":"Andy","NamePtr":"Andy","Age":1,"Slice":[1,2],"Temp":{"Foo":"Andy"},"WantIgnored":""},{"ID":2,"Name":"Leo","NamePtr":"Leo","Age":2,"Slice":[2,3,4],"Temp":{"Foo":"Leo"},"WantIgnored":""},{"ID":3,"Name":"Ben","NamePtr":"Ben","Age":3,"Slice":[3,4,5,6],"Temp":{"Foo":"Ben"},"WantIgnored":""},{"ID":4,"Name":"Ming","NamePtr":"Ming","Age":4,"Slice":[1],"Temp":{"Foo":"Ming"},"WantIgnored":""}]
+	// [{"ID":1,"Name":"Andy","NamePtr":"Andy","Age":1,"Slice":[1,2],"Temp":{"Foo":"Andy"},"TempEncoding":{"Foo":"Andy"},"WantIgnored":""},{"ID":2,"Name":"Leo","NamePtr":"Leo","Age":2,"Slice":[2,3,4],"Temp":{"Foo":"Leo"},"TempEncoding":{"Foo":"Leo"},"WantIgnored":""},{"ID":3,"Name":"Ben","NamePtr":"Ben","Age":3,"Slice":[3,4,5,6],"Temp":{"Foo":"Ben"},"TempEncoding":{"Foo":"Ben"},"WantIgnored":""},{"ID":4,"Name":"Ming","NamePtr":"Ming","Age":4,"Slice":[1],"Temp":{"Foo":"Ming"},"TempEncoding":{"Foo":"Ming"},"WantIgnored":""}]
 }
 
 func ExampleReader_readBinaryAllSlicePtr() {
@@ -203,7 +203,7 @@ func ExampleReader_readBinaryAllSlicePtr() {
 	fmt.Println(convert.MustJsonString(stdList))
 
 	// output:
-	// [{"ID":1,"Name":"Andy","NamePtr":"Andy","Age":1,"Slice":[1,2],"Temp":{"Foo":"Andy"},"WantIgnored":""},{"ID":2,"Name":"Leo","NamePtr":"Leo","Age":2,"Slice":[2,3,4],"Temp":{"Foo":"Leo"},"WantIgnored":""},{"ID":3,"Name":"Ben","NamePtr":"Ben","Age":3,"Slice":[3,4,5,6],"Temp":{"Foo":"Ben"},"WantIgnored":""},{"ID":4,"Name":"Ming","NamePtr":"Ming","Age":4,"Slice":[1],"Temp":{"Foo":"Ming"},"WantIgnored":""}]
+	// [{"ID":1,"Name":"Andy","NamePtr":"Andy","Age":1,"Slice":[1,2],"Temp":{"Foo":"Andy"},"TempEncoding":{"Foo":"Andy"},"WantIgnored":""},{"ID":2,"Name":"Leo","NamePtr":"Leo","Age":2,"Slice":[2,3,4],"Temp":{"Foo":"Leo"},"TempEncoding":{"Foo":"Leo"},"WantIgnored":""},{"ID":3,"Name":"Ben","NamePtr":"Ben","Age":3,"Slice":[3,4,5,6],"Temp":{"Foo":"Ben"},"TempEncoding":{"Foo":"Ben"},"WantIgnored":""},{"ID":4,"Name":"Ming","NamePtr":"Ming","Age":4,"Slice":[1],"Temp":{"Foo":"Ming"},"TempEncoding":{"Foo":"Ming"},"WantIgnored":""}]
 }
 
 func ExampleReader_readMap() {

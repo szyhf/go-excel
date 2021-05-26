@@ -1,6 +1,7 @@
 package excel
 
 import (
+	"encoding/json"
 	"reflect"
 	"strings"
 )
@@ -9,12 +10,13 @@ const (
 	tagIdentify = "xlsx"
 	tagSplit    = ";"
 
-	columnTag  = "column"
-	splitTag   = "split"
-	defaultTag = "default"
-	nilTag     = "nil"
-	ignoreTag  = "-"
-	reqTag     = "req"
+	encodingTag = "encoding"
+	columnTag   = "column"
+	splitTag    = "split"
+	defaultTag  = "default"
+	nilTag      = "nil"
+	ignoreTag   = "-"
+	reqTag      = "req"
 )
 
 type FieldConfig struct {
@@ -24,6 +26,8 @@ type FieldConfig struct {
 	DefaultValue string
 	// The config equals to tag: split
 	Split string
+	// The config equals to tag: decode
+	Encoding string
 	// The config equals to tag: nil
 	// if cell.value == NilValue, will skip fc scan
 	NilValue string
@@ -40,6 +44,7 @@ func (this *FieldConfig) froze(fieldIdx int) *fieldConfig {
 		ColumnName:   this.ColumnName,
 		DefaultValue: this.DefaultValue,
 		Split:        this.Split,
+		Encoding:     this.Encoding,
 		NilValue:     this.NilValue,
 		IsRequired:   this.IsRequired,
 	}
@@ -55,6 +60,8 @@ type fieldConfig struct {
 	ColumnName   string
 	DefaultValue string
 	Split        string
+	// decode column string as encoding type
+	Encoding string
 	// if cell.value == NilValue, will skip fc scan
 	NilValue string
 	// panic if reuqired fc column but not set
@@ -74,6 +81,12 @@ func (fc *fieldConfig) scan(valStr string, fieldValue reflect.Value) error {
 			elems := strings.Split(valStr, fc.Split)
 			fieldValue.Set(reflect.MakeSlice(fieldValue.Type(), 0, len(elems)))
 			err = scanSlice(elems, fieldValue.Addr())
+		} else {
+			// 如果标识是一个JSON
+			switch fc.Encoding {
+			case "json":
+				err = json.Unmarshal([]byte(valStr), fieldValue.Addr().Interface())
+			}
 		}
 	case reflect.Ptr:
 		newValue := fieldValue
@@ -83,9 +96,20 @@ func (fc *fieldConfig) scan(valStr string, fieldValue reflect.Value) error {
 				newValue = newValue.Elem()
 			}
 		}
-		err = scan(valStr, newValue.Addr().Interface())
+		// 如果标识是一个JSON
+		switch fc.Encoding {
+		case "json":
+			err = json.Unmarshal([]byte(valStr), newValue.Addr().Interface())
+		default:
+			err = scan(valStr, newValue.Addr().Interface())
+		}
 	default:
-		err = scan(valStr, fieldValue.Addr().Interface())
+		switch fc.Encoding {
+		case "json":
+			err = json.Unmarshal([]byte(valStr), fieldValue.Addr().Interface())
+		default:
+			err = scan(valStr, fieldValue.Addr().Interface())
+		}
 	}
 	return err
 }
@@ -190,6 +214,8 @@ func fillField(c *fieldConfig, k, v string) {
 		c.DefaultValue = v
 	case splitTag:
 		c.Split = v
+	case encodingTag:
+		c.Encoding = v
 	case nilTag:
 		c.NilValue = v
 	case reqTag:
