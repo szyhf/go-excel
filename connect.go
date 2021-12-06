@@ -274,6 +274,7 @@ func (conn *connect) readWorkbook() error {
 func (conn *connect) readSharedString() error {
 	// sharedStringPathsFile may not exist
 	if conn.sharedStringPathsFile == nil {
+		conn.sharedStringPaths = make([]string, 0)
 		return nil
 	}
 	rc, err := conn.sharedStringPathsFile.Open()
