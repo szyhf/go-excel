@@ -188,7 +188,8 @@ func (conn *connect) init() (err error) {
 		return ErrWorkbookNotExist
 	}
 	if conn.sharedStringPathsFile == nil {
-		return ErrSharedStringsNotExist
+		// sharedStringPathsFile may not exist.
+		// return ErrSharedStringsNotExist
 	}
 	if conn.worksheetFileMap == nil || len(conn.worksheetFileMap) == 0 {
 		return ErrWorkbookNotExist
@@ -271,6 +272,10 @@ func (conn *connect) readWorkbook() error {
 }
 
 func (conn *connect) readSharedString() error {
+	// sharedStringPathsFile may not exist
+	if conn.sharedStringPathsFile == nil {
+		return nil
+	}
 	rc, err := conn.sharedStringPathsFile.Open()
 	if err != nil {
 		return err
