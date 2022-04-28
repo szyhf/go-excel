@@ -11,11 +11,11 @@ import (
 
 type StandardFieldConfig Standard
 
-func (StandardFieldConfig) GetXLSXSheetName() string {
+func (*StandardFieldConfig) GetXLSXSheetName() string {
 	return "Standard"
 }
 
-func (StandardFieldConfig) GetXLSXFieldConfigs() map[string]excel.FieldConfig {
+func (*StandardFieldConfig) GetXLSXFieldConfigs() map[string]excel.FieldConfig {
 	return map[string]excel.FieldConfig{
 		"Name": {
 			ColumnName: "NameOf",
@@ -42,7 +42,7 @@ func (StandardFieldConfig) GetXLSXFieldConfigs() map[string]excel.FieldConfig {
 	}
 }
 
-var expectStandardFieldConfigList = []StandardFieldConfig{
+var expectStandardFieldConfigList = []*StandardFieldConfig{
 	{
 		ID:      1,
 		Name:    "Andy",
@@ -98,7 +98,7 @@ var expectStandardFieldConfigList = []StandardFieldConfig{
 }
 
 func TestReadStandardFieldConfigSimple(t *testing.T) {
-	var stdList []StandardFieldConfig
+	var stdList []*StandardFieldConfig
 	err := excel.UnmarshalXLSX(filePath, &stdList)
 	if err != nil {
 		t.Error(err)
@@ -139,7 +139,7 @@ func TestReadStandardFieldConfig(t *testing.T) {
 			return
 		}
 		expectStd := expectStandardFieldConfigList[idx]
-		if !reflect.DeepEqual(s, expectStd) {
+		if !reflect.DeepEqual(&s, expectStd) {
 			t.Errorf("unexpect std at %d = \n%s", idx, convert.MustJsonPrettyString(expectStd))
 		}
 		idx++
@@ -176,7 +176,7 @@ func TestReadStandardFieldConfigIndex(t *testing.T) {
 			return
 		}
 		expectStd := expectStandardFieldConfigList[idx]
-		if !reflect.DeepEqual(s, expectStd) {
+		if !reflect.DeepEqual(&s, expectStd) {
 			t.Errorf("unexpect std at %d = \n%s", idx, convert.MustJsonPrettyString(expectStd))
 		}
 		idx++
@@ -192,7 +192,7 @@ func TestReadStandardFieldConfigAll(t *testing.T) {
 	}
 	defer conn.Close()
 
-	var stdList []StandardFieldConfig
+	var stdList []*StandardFieldConfig
 	// Generate an new reader of a sheet
 	// sheetNamer: if sheetNamer is string, will use sheet as sheet name.
 	//             if sheetNamer is int, will i'th sheet in the workbook, be careful the hidden sheet is counted. i ∈ [1,+inf]

@@ -6,6 +6,7 @@ import (
 )
 
 func (conn *connect) parseSheetName(i interface{}) string {
+	// log.Printf("%T", i)
 	switch s := i.(type) {
 	case string:
 		return s
@@ -22,11 +23,14 @@ func (conn *connect) parseSheetName(i interface{}) string {
 		val := reflect.ValueOf(i)
 		typ := reflect.Indirect(val).Type()
 		switch typ.Kind() {
-		case reflect.Slice, reflect.Ptr:
+		case reflect.Slice, reflect.Array:
+			// 数组、切片的元素类型
 			typ = typ.Elem()
 			if typ.Kind() == reflect.Ptr {
 				typ = typ.Elem()
 			}
+			return conn.parseSheetName(reflect.New(typ).Interface())
+		case reflect.Ptr:
 			return conn.parseSheetName(reflect.New(typ).Elem().Interface())
 		default:
 			return typ.Name()
