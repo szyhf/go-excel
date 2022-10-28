@@ -36,7 +36,8 @@ func (rd *read) Next() bool {
 
 // Read current row into an object by its pointer
 // return: the last row might be a row with not data,
-//         in rd case will return io.EOF
+//
+//	in rd case will return io.EOF
 func (rd *read) Read(i interface{}) error {
 	t := reflect.TypeOf(i)
 	switch t.Kind() {
@@ -271,8 +272,11 @@ func (rd *read) readToValue(s *schema, v reflect.Value) (err error) {
 				// 结束当前行
 				return err
 			}
+			// 避免上个节点的状态未正确处理以后延伸到下次
+			isV = false
 		case xml.CharData:
 			if !isV {
+				// log.Println(string(token))
 				break
 			}
 			trimedColumnName := strings.TrimRight(tempCell.R, _AllNumber)
