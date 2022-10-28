@@ -257,6 +257,8 @@ func (rd *read) readToValue(s *schema, v reflect.Value) (err error) {
 				isV = true
 			}
 		case xml.EndElement:
+			// 避免上个节点的状态未正确处理以后延伸到下次
+			isV = false
 			if token.Name.Local == _RowPrefix {
 				// fill default value to column not read.
 				for _, notFilledFields := range fieldsMap {
@@ -272,8 +274,6 @@ func (rd *read) readToValue(s *schema, v reflect.Value) (err error) {
 				// 结束当前行
 				return err
 			}
-			// 避免上个节点的状态未正确处理以后延伸到下次
-			isV = false
 		case xml.CharData:
 			if !isV {
 				// log.Println(string(token))
@@ -348,6 +348,8 @@ func (rd *read) readToMapValue(v reflect.Value) (err error) {
 				isV = true
 			}
 		case xml.EndElement:
+			// 避免上个节点的状态未正确处理以后延伸到下次
+			isV = false
 			if token.Name.Local == _RowPrefix {
 				// end of current row
 				return err
@@ -409,6 +411,8 @@ func (rd *read) readToSliceValue(v reflect.Value) (err error) {
 				isV = true
 			}
 		case xml.EndElement:
+			// 避免上个节点的状态未正确处理以后延伸到下次
+			isV = false
 			if token.Name.Local == _RowPrefix {
 				// end of current row
 				return err
