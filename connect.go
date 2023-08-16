@@ -46,9 +46,14 @@ func (conn *connect) Open(filePath string) error {
 	if err != nil {
 		return err
 	}
-	conn.zipReader = &zipReaderCloser.Reader
+	return conn.OpenReader(&zipReaderCloser.Reader)
+}
+
+// Open a excel file from a zipReader
+func (conn *connect) OpenReader(reader *zip.Reader) error {
+	conn.zipReader = reader
 	// prepare for files
-	err = conn.init()
+	err := conn.init()
 	if err != nil {
 		if conn.zipReaderCloser != nil {
 			conn.zipReaderCloser.Close()
