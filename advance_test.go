@@ -1,6 +1,8 @@
 package excel_test
 
 import (
+	"archive/zip"
+	"os"
 	"reflect"
 	"testing"
 
@@ -114,13 +116,7 @@ func TestRead(t *testing.T) {
 	}
 }
 
-func TestReadAll(t *testing.T) {
-	// see the Advancd.suffix sheet in simple.xlsx
-	conn := excel.NewConnecter()
-	err := conn.Open(filePath)
-	if err != nil {
-		t.Error(err)
-	}
+func testReadAllWithOpenedConnector(t *testing.T, conn excel.Connecter) {
 	rd, err := conn.NewReaderByConfig(&excel.Config{
 		// Sheet name as string or sheet model as object or a slice of object.
 		Sheet: advSheetName,
@@ -147,5 +143,47 @@ func TestReadAll(t *testing.T) {
 	if !reflect.DeepEqual(slc, expectAdvanceList) {
 		t.Errorf("unexpect advance list: \n%s", convert.MustJsonPrettyString(slc))
 	}
+}
 
+func TestReadAll(t *testing.T) {
+	conn := excel.NewConnecter()
+
+	t.Run("ReadAll", func(t *testing.T) {
+		// see the Advancd.suffix sheet in simple.xlsx
+		err := conn.Open(filePath)
+		if err != nil {
+			t.Error(err)
+		}
+
+		testReadAllWithOpenedConnector(t, conn)
+	})
+
+	t.Run("ReadAllByReader", func(t *testing.T) {
+		zipReader, err := zip.OpenReader(filePath)
+		if err != nil {
+			t.Error(err)
+		}
+
+		err = conn.OpenReader(&zipReader.Reader)
+		if err != nil {
+			t.Error(err)
+		}
+
+		testReadAllWithOpenedConnector(t, conn)
+	})
+
+	t.Run("ReadAllByBinary", func(t *testing.T) {
+		// Read data from file
+		binaryData, err := os.ReadFile(filePath)
+		if err != nil {
+			t.Error(err)
+		}
+
+		err = conn.OpenBinary(binaryData)
+		if err != nil {
+			t.Error(err)
+		}
+
+		testReadAllWithOpenedConnector(t, conn)
+	})
 }
