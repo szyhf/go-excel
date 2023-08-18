@@ -1,5 +1,7 @@
 package excel
 
+import "archive/zip"
+
 // Config of connecter
 type Config struct {
 	// sheet: if sheet is string, will use sheet as sheet name.
@@ -37,6 +39,10 @@ type Reader interface {
 type Connecter interface {
 	// Open a file of excel
 	Open(filePath string) error
+
+	// Open a zip.Reader of a file of excel
+	OpenReader(reader *zip.Reader) error
+
 	// Open a binary of excel
 	OpenBinary(xlsxData []byte) error
 
