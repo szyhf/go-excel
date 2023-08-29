@@ -145,6 +145,29 @@ func testReadAllWithOpenedConnector(t *testing.T, conn excel.Connecter) {
 	}
 }
 
+func TestEmptyWorkbook(t *testing.T) {
+	conn := excel.NewConnecter()
+
+	// see the Advancd.suffix sheet in simple.xlsx
+	err := conn.Open(emptyFilePath)
+	if err != nil {
+		t.Error(err)
+	}
+
+	rd, err := conn.NewReader(conn.GetSheetNames()[0])
+	if err != nil {
+		t.Error(err)
+	}
+
+	if len(rd.GetTitles()) != 0 {
+		t.Error("empty workbook should have no titles")
+	}
+
+	if rd.Next() {
+		t.Error("empty workbook should have no rows")
+	}
+}
+
 func TestReadAll(t *testing.T) {
 	conn := excel.NewConnecter()
 

@@ -153,6 +153,10 @@ func (rd *read) ReadAll(container interface{}) error {
 }
 
 func (rd *read) GetTitles() []string {
+	if rd.title == nil {
+		return []string{}
+	}
+
 	// prevent unexpect edit
 	titles := make([]string, len(rd.title.titles))
 	copy(titles, rd.title.titles)
