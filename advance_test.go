@@ -99,6 +99,11 @@ func TestRead(t *testing.T) {
 	}
 	defer rd.Close()
 
+	expectedSheetSize := uint64(2036)
+	if rd.GetSheetSize() != expectedSheetSize {
+		t.Errorf("unexpect sheet size: %d", rd.GetSheetSize())
+	}
+
 	idx := 0
 	for rd.Next() {
 		var a Advance
@@ -113,6 +118,10 @@ func TestRead(t *testing.T) {
 		}
 
 		idx++
+	}
+
+	if rd.InputOffset() != int64(expectedSheetSize) {
+		t.Errorf("unexpect input offset: %d", rd.InputOffset())
 	}
 }
 
