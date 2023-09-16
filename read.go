@@ -18,6 +18,7 @@ type read struct {
 	decoderReadCloseer io.ReadCloser
 	title              *titleRow
 	schameMap          map[reflect.Type]*schema
+	worksheetName      string
 }
 
 // Move the cursor to next row's start.
@@ -63,6 +64,14 @@ func (rd *read) Read(i interface{}) error {
 	default:
 		return fmt.Errorf("%T should be pointer to struct or map[string]string", i)
 	}
+}
+
+func (rd *read) InputOffset() int64 {
+	return rd.decoder.InputOffset()
+}
+
+func (rd *read) GetSheetSize() uint64 {
+	return rd.connecter.worksheetNameFileMap[rd.worksheetName].UncompressedSize64
 }
 
 func (rd *read) Close() error {
@@ -470,8 +479,8 @@ func (rd *read) getSchame(t reflect.Type) *schema {
 	return s
 }
 
-func newReader(cn *connect, workSheetFileReader io.ReadCloser, titleRowIndex, skip int) (Reader, error) {
-	rd, err := newBaseReaderByWorkSheetFile(cn, workSheetFileReader)
+func newReader(cn *connect, workSheetFileReader io.ReadCloser, titleRowIndex, skip int, sheetName string) (Reader, error) {
+	rd, err := newBaseReaderByWorkSheetFile(cn, workSheetFileReader, sheetName)
 	if err != nil {
 		return nil, err
 	}
@@ -498,7 +507,7 @@ func newReader(cn *connect, workSheetFileReader io.ReadCloser, titleRowIndex, sk
 }
 
 // Make a base reader to sheet
-func newBaseReaderByWorkSheetFile(cn *connect, rc io.ReadCloser) (*read, error) {
+func newBaseReaderByWorkSheetFile(cn *connect, rc io.ReadCloser, sheetName string) (*read, error) {
 	decoder := xml.NewDecoder(rc)
 	// step into root [xml.StartElement] token
 	func(decoder *xml.Decoder) {
@@ -540,6 +549,7 @@ func newBaseReaderByWorkSheetFile(cn *connect, rc io.ReadCloser) (*read, error) 
 		connecter:          cn,
 		decoder:            decoder,
 		decoderReadCloseer: rc,
+		worksheetName:      sheetName,
 	}
 
 	return rd, nil

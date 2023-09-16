@@ -137,7 +137,7 @@ func (conn *connect) NewReaderByConfig(config *Config) (Reader, error) {
 	if err != nil {
 		return nil, err
 	}
-	reader, err := newReader(conn, rc, config.TitleRowIndex, config.Skip)
+	reader, err := newReader(conn, rc, config.TitleRowIndex, config.Skip, sheet)
 	return reader, err
 }
 

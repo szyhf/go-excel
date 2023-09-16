@@ -31,6 +31,10 @@ type Reader interface {
 	ReadAll(container interface{}) error
 	// Read next rows
 	Next() bool
+	// Returns the sheet reader's byte offset within the file
+	InputOffset() int64
+	// Get the sheet size
+	GetSheetSize() uint64
 	// Close the reader
 	Close() error
 }
