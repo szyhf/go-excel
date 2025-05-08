@@ -1,4 +1,0 @@
-package: github.com/szyhf/go-excel
-import:
-- package: github.com/szyhf/go-convert
-  version: ~1.0.0

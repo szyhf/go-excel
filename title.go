@@ -7,7 +7,7 @@ import (
 	"strings"
 
 	convert "github.com/szyhf/go-convert"
-	twentysix "github.com/szyhf/go-excel/internal/twenty_six"
+	twentysix "github.com/szyhf/go-excel/twenty_six"
 )
 
 type titleRow struct {
@@ -80,7 +80,7 @@ func newRowAsMap(rd *read) (r *titleRow, err error) {
 			}
 		case xml.CharData:
 			trimedColumnName := strings.TrimRight(tempCell.R, _AllNumber)
-			tempCell.columnIndex = twentysix.ToDecimalism(trimedColumnName)
+			tempCell.columnIndex = twentysix.ToDecimals(trimedColumnName)
 
 			if tempCell.T == _S {
 				// get string from shared

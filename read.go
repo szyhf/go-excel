@@ -8,7 +8,7 @@ import (
 	"strings"
 
 	convert "github.com/szyhf/go-convert"
-	twentysix "github.com/szyhf/go-excel/internal/twenty_six"
+	twentysix "github.com/szyhf/go-excel/twenty_six"
 )
 
 // read is default implement of reader
@@ -293,7 +293,7 @@ func (rd *read) readToValue(s *schema, v reflect.Value) (err error) {
 				break
 			}
 			trimedColumnName := strings.TrimRight(tempCell.R, _AllNumber)
-			columnIndex := twentysix.ToDecimalism(trimedColumnName)
+			columnIndex := twentysix.ToDecimals(trimedColumnName)
 			fields, ok := fieldsMap[columnIndex]
 			if !ok {
 				// Not an error, just ignore rd column.
@@ -381,7 +381,7 @@ func (rd *read) readToMapValue(v reflect.Value) (err error) {
 			}
 			val := reflect.New(v.Type().Elem())
 			_ = scan(valStr, val.Interface())
-			columnIndex := twentysix.ToDecimalism(trimedColumnName)
+			columnIndex := twentysix.ToDecimals(trimedColumnName)
 			title := rd.title.srcMap[columnIndex]
 			v.SetMapIndex(reflect.ValueOf(title), val.Elem())
 			// log.Println("Key:", trimedColumnName, "Val:", valStr)
@@ -443,7 +443,7 @@ func (rd *read) readToSliceValue(v reflect.Value) (err error) {
 				valStr = string(token)
 			}
 
-			columnIndex := twentysix.ToDecimalism(trimedColumnName)
+			columnIndex := twentysix.ToDecimals(trimedColumnName)
 			if columnIndex < v.Len() {
 				val := v.Index(columnIndex)
 				if val.Type().Kind() == reflect.Ptr {
